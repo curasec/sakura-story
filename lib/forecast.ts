@@ -1,23 +1,23 @@
 /**
  * 确定性 7 日关系日历生成器
- * 基于 SPEC 第 5 节
+ * 基于 SPEC 第 4 节
  */
 
-import type { Level, Tone, Focus, RelationshipType } from './compatibility';
+import type { ComplexityLevel, Tone, Focus, RelationshipStructure } from './compatibility';
 
 /**
- * 日历单日输出（SPEC 第 2.3 节）
+ * 日历单日输出（SPEC 第 4.1 节）
  */
 export interface ForecastDay {
   date: string; // YYYY-MM-DD
   tone: Tone;
   focus: Focus;
-  warning_or_window: string;
+  window_or_risk: string;
   action: string;
 }
 
 /**
- * 7 日关系日历（SPEC 第 2.3 节）
+ * 7 日关系日历（SPEC 第 4.1 节）
  */
 export interface ForecastResult {
   pair: { a: string; b: string };
@@ -194,21 +194,24 @@ const WINDOW_TEMPLATES: string[] = [
 ];
 
 /**
- * 根据 level 调整 tone 的权重
+ * 根据 complexity_level 调整 tone 的权重
  */
-function adjustToneWeightsByLevel(tones: Tone[], level: Level): Tone[] {
+function adjustToneWeightsByLevel(tones: Tone[], level: ComplexityLevel): Tone[] {
   const weighted: Tone[] = [];
 
   for (const tone of tones) {
     let weight = 1;
 
-    if (level === 'HIGH') {
+    if (level === 'LOW') {
+      // 低复杂度：顺畅、激情更多
       if (tone === 'Smooth' || tone === 'Passion') weight = 3;
-      if (tone === 'Repair') weight = 0;
+      if (tone === 'Repair') weight = 0.5;
       if (tone === 'Tense' || tone === 'Misunderstanding') weight = 0.5;
-    } else if (level === 'LOW') {
-      if (tone === 'Tense' || tone === 'Misunderstanding' || tone === 'Repair') weight = 3;
-      if (tone === 'Smooth' || tone === 'Passion') weight = 0.5;
+    } else if (level === 'HIGH') {
+      // 高复杂度：修复更多，其他适中
+      if (tone === 'Repair') weight = 2;
+      if (tone === 'Tense' || tone === 'Misunderstanding') weight = 1.5;
+      if (tone === 'Smooth' || tone === 'Passion') weight = 1;
     } else { // MID
       if (tone === 'Smooth') weight = 2;
       if (tone === 'Tense' || tone === 'Misunderstanding') weight = 1.5;
@@ -223,12 +226,12 @@ function adjustToneWeightsByLevel(tones: Tone[], level: Level): Tone[] {
 }
 
 /**
- * 根据 relationship_type 调整 tone 的权重
+ * 根据 relationship_structure 调整 tone 的权重
  */
-function adjustToneWeightsByType(tones: Tone[], relationshipType: string): Tone[] {
+function adjustToneWeightsByType(tones: Tone[], relationshipStructure: RelationshipStructure): Tone[] {
   const weighted: Tone[] = [...tones];
 
-  if (relationshipType === 'HighChemistryHighFriction') {
+  if (relationshipStructure === 'HighChemistryHighFriction') {
     // Passion 与 Misunderstanding 同时更高
     weighted.push('Passion', 'Passion', 'Passion');
     weighted.push('Misunderstanding', 'Misunderstanding');
@@ -253,12 +256,12 @@ function formatDate(date: Date): string {
 function generateDay(
   rng: Mulberry32,
   date: Date,
-  level: Level,
-  relationshipType: RelationshipType
+  level: ComplexityLevel,
+  relationshipStructure: RelationshipStructure
 ): ForecastDay {
-  // 根据 level 和 relationship_type 调整 tone 概率
+  // 根据 level 和 relationship_structure 调整 tone 概率
   let weightedTones = adjustToneWeightsByLevel(TONE_OPTIONS, level);
-  weightedTones = adjustToneWeightsByType(weightedTones, relationshipType);
+  weightedTones = adjustToneWeightsByType(weightedTones, relationshipStructure);
 
   const tone = rng.nextItem(weightedTones);
   const focus = rng.nextItem(FOCUS_OPTIONS);
@@ -271,29 +274,29 @@ function generateDay(
   const isWarning = ['Tense', 'Misunderstanding', 'Repair'].includes(tone);
   if (isWarning) {
     const warnings = WARNING_TEMPLATES[tone];
-    const warningOrWindow = rng.nextItem(warnings);
-    return { date: formatDate(date), tone, focus, action, warning_or_window: warningOrWindow };
+    const windowOrRisk = rng.nextItem(warnings);
+    return { date: formatDate(date), tone, focus, action, window_or_risk: windowOrRisk };
   } else {
     const windowText = rng.nextItem(WINDOW_TEMPLATES);
-    return { date: formatDate(date), tone, focus, action, warning_or_window: windowText };
+    return { date: formatDate(date), tone, focus, action, window_or_risk: windowText };
   }
 }
 
 /**
- * 生成 7 日关系日历
+ * 生成 7 日关系日历（SPEC 第 4.2 节）
  * @param signACode 星座 A 代码
  * @param signBCode 星座 B 代码
  * @param startDate 起始日期 (YYYY-MM-DD)
- * @param level 配对等级（影响 tone 概率）
- * @param relationshipType 关系类型（影响 tone 概率）
+ * @param complexityLevel 复杂度等级（影响 tone 概率）
+ * @param relationshipStructure 关系结构（影响 tone 概率）
  * @param days 天数，默认 7
  */
 export function generateForecast(
   signACode: string,
   signBCode: string,
   startDate: string,
-  level: Level,
-  relationshipType: RelationshipType,
+  complexityLevel: ComplexityLevel,
+  relationshipStructure: RelationshipStructure,
   days: number = 7
 ): ForecastResult {
   const daysResult: ForecastDay[] = [];
@@ -302,12 +305,12 @@ export function generateForecast(
   const [year, month, day] = startDate.split('-').map(Number);
   let currentDate = new Date(year!, month! - 1, day!);
 
-  // 确定性种子
+  // 确定性种子（SPEC 第 4.2 节：同一对星座 + 同一天 → 结果必须一致）
   const seed = stringToHash(`${startDate}:${signACode}:${signBCode}`);
   const rng = new Mulberry32(seed);
 
   for (let i = 0; i < days; i++) {
-    const dayResult = generateDay(rng, currentDate, level, relationshipType);
+    const dayResult = generateDay(rng, currentDate, complexityLevel, relationshipStructure);
     daysResult.push(dayResult);
 
     // 推进一天

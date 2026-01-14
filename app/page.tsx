@@ -28,7 +28,7 @@ export default function Home() {
 
   return (
     <div className="container">
-      <h1>星座情侣配对</h1>
+      <h1>星座关系说明书</h1>
 
       <div className="form">
         <label htmlFor="signA">选择你的星座</label>
@@ -59,7 +59,7 @@ export default function Home() {
           onClick={handleSubmit}
           disabled={!signA || !signB}
         >
-          查看结论
+          查看关系说明
         </button>
       </div>
 

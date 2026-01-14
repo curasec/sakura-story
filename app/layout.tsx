@@ -1,8 +1,8 @@
 import './globals.css'
 
 export const metadata = {
-  title: '星座情侣配对',
-  description: '星座情侣配对 + 7日关系日历',
+  title: '星座关系说明书',
+  description: '星座关系说明书 + 7日关系日历',
 }
 
 export default function RootLayout({

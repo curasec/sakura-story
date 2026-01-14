@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { calculateCompatibility } from '@/lib/compatibility'
+import { generateRelationshipManual } from '@/lib/compatibility'
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Missing parameters' }, { status: 400 })
   }
 
-  const result = calculateCompatibility(a, b)
+  const result = generateRelationshipManual(a, b)
 
   if (!result) {
     return NextResponse.json({ error: 'Invalid signs' }, { status: 400 })

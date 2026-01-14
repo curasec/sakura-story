@@ -1,13 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter, useParams, useSearchParams } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 
 interface ForecastDay {
   date: string
   tone: string
   focus: string
-  warning_or_window: string
+  window_or_risk: string
   action: string
 }
 
@@ -52,7 +52,6 @@ const FOCUS_LABELS: Record<string, string> = {
 export default function ForecastPage() {
   const router = useRouter()
   const params = useParams()
-  const searchParams = useSearchParams()
   const [data, setData] = useState<ForecastResult | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -60,12 +59,10 @@ export default function ForecastPage() {
     const fetchData = async () => {
       const a = params.a
       const b = params.b
-      const level = searchParams.get('level')
-      const type = searchParams.get('type')
       const startDate = new Date().toISOString().split('T')[0]
 
       const response = await fetch(
-        `/api/forecast?a=${a}&b=${b}&start=${startDate}&level=${level}&relationship_type=${type}`
+        `/api/forecast?a=${a}&b=${b}&start=${startDate}`
       )
       const result = await response.json()
       setData(result)
@@ -73,7 +70,7 @@ export default function ForecastPage() {
     }
 
     fetchData()
-  }, [params.a, params.b, searchParams])
+  }, [params.a, params.b])
 
   if (loading) {
     return (
@@ -118,8 +115,8 @@ export default function ForecastPage() {
               <span>{FOCUS_LABELS[day.focus] || day.focus}</span>
             </div>
             <div className="day-action">{day.action}</div>
-            {day.warning_or_window && (
-              <div className="day-warning">{day.warning_or_window}</div>
+            {day.window_or_risk && (
+              <div className="day-warning">{day.window_or_risk}</div>
             )}
           </div>
         ))}

@@ -1,6 +1,6 @@
 /**
  * compatibility.ts 单元测试
- * 基于 SPEC 第 4 节
+ * 基于 SPEC 第 5 节
  */
 
 import { describe, it } from 'node:test';
@@ -11,9 +11,9 @@ import {
   calculateModalityScore,
   calculateGeometryScore,
   calculateTotalScore,
-  calculateLevel,
-  calculateRelationshipType,
-  calculateCompatibility,
+  calculateComplexityLevel,
+  calculateRelationshipStructure,
+  generateRelationshipManual,
 } from '../lib/compatibility.js';
 import { SIGNS } from '../lib/signs.js';
 
@@ -167,126 +167,123 @@ describe('calculateTotalScore', () => {
   });
 });
 
-describe('calculateLevel', () => {
-  it('score ≥ 70 应该是 HIGH', () => {
-    strictEqual(calculateLevel(100), 'HIGH');
-    strictEqual(calculateLevel(85), 'HIGH');
-    strictEqual(calculateLevel(70), 'HIGH');
+describe('calculateComplexityLevel', () => {
+  it('score ≥ 75 应该是 LOW', () => {
+    strictEqual(calculateComplexityLevel(100), 'LOW');
+    strictEqual(calculateComplexityLevel(85), 'LOW');
+    strictEqual(calculateComplexityLevel(75), 'LOW');
   });
 
-  it('40 ≤ score < 70 应该是 MID', () => {
-    strictEqual(calculateLevel(69), 'MID');
-    strictEqual(calculateLevel(55), 'MID');
-    strictEqual(calculateLevel(40), 'MID');
+  it('45 ≤ score < 75 应该是 MID', () => {
+    strictEqual(calculateComplexityLevel(74), 'MID');
+    strictEqual(calculateComplexityLevel(60), 'MID');
+    strictEqual(calculateComplexityLevel(45), 'MID');
   });
 
-  it('score < 40 应该是 LOW', () => {
-    strictEqual(calculateLevel(39), 'LOW');
-    strictEqual(calculateLevel(20), 'LOW');
-    strictEqual(calculateLevel(0), 'LOW');
+  it('score < 45 应该是 HIGH', () => {
+    strictEqual(calculateComplexityLevel(44), 'HIGH');
+    strictEqual(calculateComplexityLevel(30), 'HIGH');
+    strictEqual(calculateComplexityLevel(0), 'HIGH');
   });
 });
 
-describe('calculateRelationshipType', () => {
+describe('calculateRelationshipStructure', () => {
   describe('优先级 1: HighChemistryHighFriction', () => {
     it('Opposition 且 score 介于 45-75', () => {
-      strictEqual(calculateRelationshipType(50, 'Opposition', 8, 0), 'HighChemistryHighFriction');
-      strictEqual(calculateRelationshipType(60, 'Opposition', 8, 0), 'HighChemistryHighFriction');
-      strictEqual(calculateRelationshipType(45, 'Opposition', 8, 0), 'HighChemistryHighFriction');
-      strictEqual(calculateRelationshipType(75, 'Opposition', 8, 0), 'HighChemistryHighFriction');
+      strictEqual(calculateRelationshipStructure(50, 'Opposition', 8, 0), 'HighChemistryHighFriction');
+      strictEqual(calculateRelationshipStructure(60, 'Opposition', 8, 0), 'HighChemistryHighFriction');
+      strictEqual(calculateRelationshipStructure(45, 'Opposition', 8, 0), 'HighChemistryHighFriction');
+      strictEqual(calculateRelationshipStructure(75, 'Opposition', 8, 0), 'HighChemistryHighFriction');
     });
 
     it('Square 且 score ≥ 55', () => {
-      strictEqual(calculateRelationshipType(55, 'Square', -6, 0), 'HighChemistryHighFriction');
-      strictEqual(calculateRelationshipType(70, 'Square', -6, 0), 'HighChemistryHighFriction');
+      strictEqual(calculateRelationshipStructure(55, 'Square', -6, 0), 'HighChemistryHighFriction');
+      strictEqual(calculateRelationshipStructure(70, 'Square', -6, 0), 'HighChemistryHighFriction');
     });
 
     it('Opposition 且 score < 45 不匹配', () => {
-      notStrictEqual(calculateRelationshipType(44, 'Opposition', 8, 0), 'HighChemistryHighFriction');
+      notStrictEqual(calculateRelationshipStructure(44, 'Opposition', 8, 0), 'HighChemistryHighFriction');
     });
 
     it('Opposition 且 score > 75 不匹配', () => {
-      notStrictEqual(calculateRelationshipType(76, 'Opposition', 8, 0), 'HighChemistryHighFriction');
+      notStrictEqual(calculateRelationshipStructure(76, 'Opposition', 8, 0), 'HighChemistryHighFriction');
     });
 
     it('Square 且 score < 55 不匹配', () => {
-      notStrictEqual(calculateRelationshipType(54, 'Square', -6, 0), 'HighChemistryHighFriction');
+      notStrictEqual(calculateRelationshipStructure(54, 'Square', -6, 0), 'HighChemistryHighFriction');
     });
   });
 
-  describe('优先级 2: LongTerm', () => {
+  describe('优先级 2: LongTermStable', () => {
     it('score ≥ 75 且非 Square 主导', () => {
-      strictEqual(calculateRelationshipType(80, 'Trine', 10, 6), 'LongTerm');
-      strictEqual(calculateRelationshipType(75, 'Sextile', 8, 6), 'LongTerm');
-      strictEqual(calculateRelationshipType(90, 'Conjunction', 10, 6), 'LongTerm');
+      strictEqual(calculateRelationshipStructure(80, 'Trine', 10, 6), 'LongTermStable');
+      strictEqual(calculateRelationshipStructure(75, 'Sextile', 8, 6), 'LongTermStable');
+      strictEqual(calculateRelationshipStructure(90, 'Conjunction', 10, 6), 'LongTermStable');
     });
 
     it('Square 主导不匹配', () => {
-      notStrictEqual(calculateRelationshipType(80, 'Square', -6, 0), 'LongTerm');
+      notStrictEqual(calculateRelationshipStructure(80, 'Square', -6, 0), 'LongTermStable');
     });
   });
 
-  describe('优先级 3: NeedsWork', () => {
+  describe('优先级 3: NeedsActiveAdjustment', () => {
     it('score < 45', () => {
-      strictEqual(calculateRelationshipType(30, 'Square', -6, 0), 'NeedsWork');
-      strictEqual(calculateRelationshipType(0, 'Minor', 0, 0), 'NeedsWork');
+      strictEqual(calculateRelationshipStructure(30, 'Square', -6, 0), 'NeedsActiveAdjustment');
+      strictEqual(calculateRelationshipStructure(0, 'Minor', 0, 0), 'NeedsActiveAdjustment');
     });
   });
 
   describe('优先级 4: ComfortableButStale', () => {
     it('同元素或同模式加分多但几何为 Minor/Conjunction，且 score 55-75', () => {
-      strictEqual(calculateRelationshipType(60, 'Minor', 10, 6), 'ComfortableButStale');
-      strictEqual(calculateRelationshipType(70, 'Conjunction', 10, 6), 'ComfortableButStale');
+      strictEqual(calculateRelationshipStructure(60, 'Minor', 10, 6), 'ComfortableButStale');
+      strictEqual(calculateRelationshipStructure(70, 'Conjunction', 10, 6), 'ComfortableButStale');
     });
   });
 
   describe('默认回退', () => {
     it('未被前面的规则捕获时应该正确回退', () => {
-      strictEqual(calculateRelationshipType(80, 'Minor', 10, 0), 'LongTerm');
-      strictEqual(calculateRelationshipType(50, 'Minor', 0, 0), 'ComfortableButStale');
-      strictEqual(calculateRelationshipType(30, 'Minor', 0, 0), 'NeedsWork');
+      strictEqual(calculateRelationshipStructure(80, 'Minor', 10, 0), 'LongTermStable');
+      strictEqual(calculateRelationshipStructure(50, 'Minor', 0, 0), 'ComfortableButStale');
+      strictEqual(calculateRelationshipStructure(30, 'Minor', 0, 0), 'NeedsActiveAdjustment');
     });
   });
 });
 
-describe('calculateCompatibility', () => {
+describe('generateRelationshipManual', () => {
   it('无效代码应该返回 null', () => {
-    strictEqual(calculateCompatibility('Invalid', 'Aries'), null);
-    strictEqual(calculateCompatibility('Aries', 'Invalid'), null);
+    strictEqual(generateRelationshipManual('Invalid', 'Aries'), null);
+    strictEqual(generateRelationshipManual('Aries', 'Invalid'), null);
   });
 
   it('应该返回正确的结果结构', () => {
-    const result = calculateCompatibility('Aries', 'Libra');
+    const result = generateRelationshipManual('Aries', 'Libra');
 
     ok(result !== null);
     deepStrictEqual(result?.pair, { a: 'Aries', b: 'Libra' });
-    ok(typeof result?.score === 'number');
-    ok(result?.score >= 0);
-    ok(result?.score <= 100);
-    ok(['HIGH', 'MID', 'LOW'].includes(result?.level!));
+    ok(['LOW', 'MID', 'HIGH'].includes(result?.complexity_level!));
     ok(typeof result?.one_liner === 'string');
     ok(result?.one_liner !== '');
-    ok(['LongTerm', 'HighChemistryHighFriction', 'ComfortableButStale', 'NeedsWork'].includes(result?.relationship_type!));
-    ok(Array.isArray(result?.attraction));
+    ok(['LongTermStable', 'HighChemistryHighFriction', 'ComfortableButStale', 'NeedsActiveAdjustment'].includes(result?.relationship_structure!));
+    ok(typeof result?.core_tension === 'string');
     ok(Array.isArray(result?.advantages));
     ok(Array.isArray(result?.risks));
-    ok(Array.isArray(result?.triggers));
-    ok(Array.isArray(result?.rules?.do));
-    ok(Array.isArray(result?.rules?.dont));
-    strictEqual(result?.rules?.do?.length, 3);
-    strictEqual(result?.rules?.dont?.length, 3);
+    ok(Array.isArray(result?.conflict_loops));
+    ok(Array.isArray(result?.interaction_rules?.do));
+    ok(Array.isArray(result?.interaction_rules?.dont));
+    strictEqual(result?.interaction_rules?.do?.length, 3);
+    strictEqual(result?.interaction_rules?.dont?.length, 3);
   });
 
   it('应该产生确定性结果', () => {
-    const result1 = calculateCompatibility('Aries', 'Libra');
-    const result2 = calculateCompatibility('Aries', 'Libra');
+    const result1 = generateRelationshipManual('Aries', 'Libra');
+    const result2 = generateRelationshipManual('Aries', 'Libra');
 
     deepStrictEqual(result1, result2);
   });
 
   it('交换星座顺序应该产生确定结果', () => {
-    const result1 = calculateCompatibility('Aries', 'Libra');
-    const result2 = calculateCompatibility('Libra', 'Aries');
+    const result1 = generateRelationshipManual('Aries', 'Libra');
+    const result2 = generateRelationshipManual('Libra', 'Aries');
 
     // 注意：由于几何计算是单向的，分数可能不同
     // 但这符合占星学中 A→B 和 B→A 可能不同的事实
@@ -296,25 +293,27 @@ describe('calculateCompatibility', () => {
   });
 
   it('同星座配对应该有 Conjunction 几何', () => {
-    const result = calculateCompatibility('Aries', 'Aries');
-    ok(result?.explain.geometry.includes('相位重合'));
+    const result = generateRelationshipManual('Aries', 'Aries');
+    ok(result?.structure_explain.geometry_relation.includes('相位重合'));
   });
 
   it('对宫配对应该有 Opposition 几何', () => {
-    const result = calculateCompatibility('Aries', 'Libra');
-    ok(result?.explain.geometry.includes('对宫相位'));
+    const result = generateRelationshipManual('Aries', 'Libra');
+    ok(result?.structure_explain.geometry_relation.includes('对宫相位'));
   });
 
   it('三合配对应该有 Trine 几何', () => {
-    const result = calculateCompatibility('Aries', 'Sagittarius');
-    ok(result?.explain.geometry.includes('三合相位'));
+    const result = generateRelationshipManual('Aries', 'Sagittarius');
+    ok(result?.structure_explain.geometry_relation.includes('三合相位'));
   });
 
-  it('对宫配对应该是 HighChemistryHighFriction（score 45-75）', () => {
-    const result = calculateCompatibility('Aries', 'Libra');
-    if (result?.score && result.score >= 45 && result.score <= 75) {
-      strictEqual(result.relationship_type, 'HighChemistryHighFriction');
-    }
+  it('conflict_loops 应该有正确的结构', () => {
+    const result = generateRelationshipManual('Aries', 'Libra');
+    ok(result?.conflict_loops?.length! > 0);
+    ok(typeof result?.conflict_loops![0]!.name === 'string');
+    ok(typeof result?.conflict_loops![0]!.trigger === 'string');
+    ok(typeof result?.conflict_loops![0]!.pattern === 'string');
+    ok(typeof result?.conflict_loops![0]!.break_rule === 'string');
   });
 });
 
@@ -334,38 +333,23 @@ describe('SPEC 8.1 单元测试要求', () => {
     });
   });
 
-  describe('分数边界', () => {
-    it('永远 0-100', () => {
-      // 测试所有可能的星座配对
-      const signCodes = SIGNS.map(s => s.code);
-
-      for (const codeA of signCodes) {
-        for (const codeB of signCodes) {
-          const result = calculateCompatibility(codeA, codeB);
-          ok(result?.score >= 0);
-          ok(result?.score <= 100);
-        }
-      }
+  describe('complexity_level 映射', () => {
+    it('score ≥ 75 必为 LOW', () => {
+      strictEqual(calculateComplexityLevel(75), 'LOW');
+      strictEqual(calculateComplexityLevel(90), 'LOW');
+      strictEqual(calculateComplexityLevel(100), 'LOW');
     });
-  });
 
-  describe('结果结构', () => {
-    it('字段齐全、不为空（必要字段）', () => {
-      const result = calculateCompatibility('Aries', 'Libra');
+    it('45-74 必为 MID', () => {
+      strictEqual(calculateComplexityLevel(45), 'MID');
+      strictEqual(calculateComplexityLevel(60), 'MID');
+      strictEqual(calculateComplexityLevel(74), 'MID');
+    });
 
-      // 必要字段检查
-      ok(result !== null);
-      ok(result?.pair !== undefined);
-      ok(result?.score !== undefined);
-      ok(result?.level !== undefined);
-      ok(result?.one_liner !== undefined);
-      ok(result?.relationship_type !== undefined);
-
-      // 数组字段不为空
-      ok(result?.advantages?.length! > 0);
-      ok(result?.risks?.length! > 0);
-      strictEqual(result?.rules?.do?.length, 3);
-      strictEqual(result?.rules?.dont?.length, 3);
+    it('score < 45 必为 HIGH', () => {
+      strictEqual(calculateComplexityLevel(44), 'HIGH');
+      strictEqual(calculateComplexityLevel(30), 'HIGH');
+      strictEqual(calculateComplexityLevel(0), 'HIGH');
     });
   });
 });

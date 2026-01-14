@@ -1,9 +1,9 @@
 /**
- * 配对计算引擎
- * 基于 SPEC 第 4 节规则系统
+ * 关系说明书计算引擎
+ * 基于 SPEC 第 5 节规则系统
  */
 
-import { Sign, SignCode, getSignByCode } from './signs';
+import { Sign, getSignByCode } from './signs';
 
 /**
  * 几何相位类型
@@ -17,18 +17,18 @@ export type GeometryType =
   | 'Minor';         // 1, 5, 7, 11: 次要相位
 
 /**
- * 关系类型
+ * 理解与维护成本等级
  */
-export type RelationshipType =
-  | 'LongTerm'
-  | 'HighChemistryHighFriction'
-  | 'ComfortableButStale'
-  | 'NeedsWork';
+export type ComplexityLevel = 'LOW' | 'MID' | 'HIGH';
 
 /**
- * 配对等级
+ * 关系结构类型
  */
-export type Level = 'HIGH' | 'MID' | 'LOW';
+export type RelationshipStructure =
+  | 'LongTermStable'
+  | 'HighChemistryHighFriction'
+  | 'ComfortableButStale'
+  | 'NeedsActiveAdjustment';
 
 /**
  * 焦点类型
@@ -48,36 +48,46 @@ export type Focus =
 export type Tone = 'Smooth' | 'Tense' | 'Misunderstanding' | 'Repair' | 'Passion';
 
 /**
- * 触发点类型
+ * 冲突循环项
  */
-export type TriggerTopic = 'money' | 'boundaries' | 'communication' | 'jealousy' | 'time';
+export interface ConflictLoop {
+  name: string;
+  trigger: string;
+  pattern: string;
+  break_rule: string;
+}
 
 /**
- * 配对结果（SPEC 第 2.2 节）
+ * 相处规则
  */
-export interface MatchResult {
+export interface InteractionRules {
+  do: string[];
+  dont: string[];
+}
+
+/**
+ * 结构解释
+ */
+export interface StructureExplain {
+  element_relation: string;
+  modality_relation: string;
+  geometry_relation: string;
+}
+
+/**
+ * 关系说明书输出（SPEC 第 3.1 节）
+ */
+export interface RelationshipManual {
   pair: { a: string; b: string };
-  score: number;
-  level: Level;
+  complexity_level: ComplexityLevel;
   one_liner: string;
-  relationship_type: RelationshipType;
-  attraction: string[];
+  relationship_structure: RelationshipStructure;
+  core_tension: string;
   advantages: string[];
   risks: string[];
-  triggers: Array<{
-    topic: TriggerTopic;
-    pattern: string;
-    repair: string;
-  }>;
-  rules: {
-    do: string[];
-    dont: string[];
-  };
-  explain: {
-    element: string;
-    modality: string;
-    geometry: string;
-  };
+  conflict_loops: ConflictLoop[];
+  interaction_rules: InteractionRules;
+  structure_explain: StructureExplain;
 }
 
 /**
@@ -167,39 +177,39 @@ export function calculateTotalScore(
 }
 
 /**
- * 判断等级 level
+ * 判断 complexity_level（SPEC 第 5.4 节）
  */
-export function calculateLevel(score: number): Level {
-  if (score >= 70) return 'HIGH';
-  if (score >= 40) return 'MID';
-  return 'LOW';
+export function calculateComplexityLevel(score: number): ComplexityLevel {
+  if (score >= 75) return 'LOW';
+  if (score >= 45) return 'MID';
+  return 'HIGH';
 }
 
 /**
- * 判断关系类型 relationship_type
+ * 判断 relationship_structure（SPEC 第 5.5 节）
  */
-export function calculateRelationshipType(
+export function calculateRelationshipStructure(
   score: number,
   geometry: GeometryType,
   elementScore: number,
   modalityScore: number
-): RelationshipType {
+): RelationshipStructure {
   // 优先级 1: HighChemistryHighFriction
-  // Opposition 且 score 介于 45-75 或存在 Square 且 score ≥ 55
+  // Opposition 且 score 介于 45-75 或存在 Square 且 score >= 55
   if ((geometry === 'Opposition' && score >= 45 && score <= 75) ||
       (geometry === 'Square' && score >= 55)) {
     return 'HighChemistryHighFriction';
   }
 
-  // 优先级 2: LongTerm
-  // score ≥ 75 且非 Square 主导
+  // 优先级 2: LongTermStable
+  // score >= 75 且非 Square 主导
   if (score >= 75 && geometry !== 'Square') {
-    return 'LongTerm';
+    return 'LongTermStable';
   }
 
-  // 优先级 3: NeedsWork
+  // 优先级 3: NeedsActiveAdjustment
   if (score < 45) {
-    return 'NeedsWork';
+    return 'NeedsActiveAdjustment';
   }
 
   // 优先级 4: ComfortableButStale
@@ -212,18 +222,18 @@ export function calculateRelationshipType(
   }
 
   // 默认回退
-  if (score >= 70) return 'LongTerm';
+  if (score >= 70) return 'LongTermStable';
   if (score >= 45) return 'ComfortableButStale';
-  return 'NeedsWork';
+  return 'NeedsActiveAdjustment';
 }
 
 /**
  * 文案模板库
  */
 
-// one_liner 模板：按 relationship_type + element_relation + geometry
-const ONE_LINER_TEMPLATES: Record<RelationshipType, string[]> = {
-  LongTerm: [
+// one_liner 模板：按 relationship_structure + element_relation + geometry
+const ONE_LINER_TEMPLATES: Record<RelationshipStructure, string[]> = {
+  LongTermStable: [
     '这是一段有着长期潜力的配对，彼此的能量互补且稳定。',
     '你们的组合建立在坚实的理解基础上，适合共同成长。',
     '这段关系有望随着时间的推移而愈发深厚。',
@@ -238,10 +248,34 @@ const ONE_LINER_TEMPLATES: Record<RelationshipType, string[]> = {
     '你们的关系很稳定，但要警惕陷入平庸的日常。',
     '彼此熟悉到有些平淡，需要共同创造新的体验。',
   ],
-  NeedsWork: [
+  NeedsActiveAdjustment: [
     '这段关系需要双方付出额外的努力和理解才能维系。',
     '你们的差异较大，需要学习如何相互包容。',
     '这不是一个轻松的开始，但如果愿意投入仍有转机。',
+  ],
+};
+
+// core_tension 模板
+const CORE_TENSION_TEMPLATES: Record<RelationshipStructure, string[]> = {
+  LongTermStable: [
+    '双方价值观高度契合，冲突来源较少。',
+    '主要挑战在于如何保持关系的活力。',
+    '平稳期需要警惕关系停滞不前。',
+  ],
+  HighChemistryHighFriction: [
+    '情感波动是常态，需要学习平衡激情与理性。',
+    '冲突往往源于表达方式的差异。',
+    '需要双方都有较强的自我调节能力。',
+  ],
+  ComfortableButStale: [
+    '舒适感可能掩盖潜在的不满。',
+    '缺乏挑战性可能导致关系倦怠。',
+    '需要主动创造变化来维持吸引力。',
+  ],
+  NeedsActiveAdjustment: [
+    '理解和接纳差异是核心挑战。',
+    '需要建立新的沟通模式。',
+    '双方都需要做出妥协和调整。',
   ],
 };
 
@@ -273,15 +307,6 @@ const RISKS_TEMPLATES: string[] = [
   '容易忽视对方的感受和需求。',
 ];
 
-// 吸引力文案库
-const ATTRACTION_TEMPLATES: string[] = [
-  '初次见面就感到莫名的亲近感。',
-  '对方的某些特质深深吸引着你。',
-  '彼此的能量场有天然的共鸣。',
-  '在对方身上看到自己缺失的特质。',
-  '能够读懂对方未说出口的想法。',
-];
-
 // Do 规则库（动词开头，可执行）
 const DO_TEMPLATES: string[] = [
   '定期进行坦诚的对话，倾听对方的真实想法。',
@@ -310,29 +335,38 @@ const DONT_TEMPLATES: string[] = [
   '不要在压力大时过度依赖对方。',
 ];
 
-// 触发点库
-const TRIGGER_TEMPLATES: Record<TriggerTopic, { pattern: string; repair: string }[]> = {
-  money: [
-    { pattern: '对消费习惯的不同看法引发争执。', repair: '制定共同的预算和消费规则。' },
-    { pattern: '对未来的财务规划产生分歧。', repair: '定期讨论理财目标和策略。' },
-  ],
-  boundaries: [
-    { pattern: '一方感觉自己的空间被侵犯。', repair: '明确表达各自的边界需求。' },
-    { pattern: '在社交时间安排上产生冲突。', repair: '协商各自需要的时间和自由度。' },
-  ],
-  communication: [
-    { pattern: '沟通方式不同导致误解。', repair: '学习并适应对方的沟通偏好。' },
-    { pattern: '沉默或回避让问题积累。', repair: '及时表达担忧，不回避对话。' },
-  ],
-  jealousy: [
-    { pattern: '对对方的社交关系产生不安全感。', repair: '通过坦诚对话建立信任基础。' },
-    { pattern: '过度关注对方的过往经历。', repair: '关注当下，接受彼此的过去。' },
-  ],
-  time: [
-    { pattern: '对相处时间的期待不一致。', repair: '协商双方都能接受的时间安排。' },
-    { pattern: '一方觉得被忽视或冷落。', repair: '主动安排高质量的相处时光。' },
-  ],
-};
+// 冲突循环库
+const CONFLICT_LOOP_TEMPLATES: Array<{
+  name: string;
+  triggers: string[];
+  patterns: string[];
+  break_rules: string[];
+}> = [
+  {
+    name: '沟通困境循环',
+    triggers: ['意见不合时急于反驳', '感觉被忽视时的沉默抗议'],
+    patterns: ['一方表达不满，另一方防御性回应', '问题反复出现但从未真正解决'],
+    break_rules: ['先倾听对方说完再表达', '用"我"语言代替指责性语言'],
+  },
+  {
+    name: '期待落差循环',
+    triggers: ['一方提出未明说的期待', '对方的反应不符合预期'],
+    patterns: ['期待未被满足，感到失望', '对方感到压力，表现更加消极'],
+    break_rules: ['清晰直接地表达自己的需求', '询问对方的真实想法而非假设'],
+  },
+  {
+    name: '边界冲突循环',
+    triggers: ['一方感觉空间被侵占', '对相处时间的期待不同'],
+    patterns: ['要求更多空间，对方感到被拒绝', '给予空间后被误解为不在乎'],
+    break_rules: ['明确沟通各自的边界需求', '约定可接受的相处频率'],
+  },
+  {
+    name: '情绪反应循环',
+    triggers: ['一方情绪激动，另一方试图理性化', '情绪被否定后加剧'],
+    patterns: ['情绪表达被当作"反应过度"', '理性建议被当作"不关心"'],
+    break_rules: ['先接纳对方的情绪，再讨论问题', '尊重对方的情绪反应方式'],
+  },
+];
 
 /**
  * 确定性选择器（基于哈希）
@@ -368,24 +402,62 @@ function simpleHash(str: string): number {
  * 生成 one_liner
  */
 function generateOneLiner(
-  relationshipType: RelationshipType,
+  relationshipStructure: RelationshipStructure,
   elementA: string,
   elementB: string,
   geometry: GeometryType
 ): string {
-  const templates = ONE_LINER_TEMPLATES[relationshipType];
-  const seed = `${relationshipType}-${elementA}-${elementB}-${geometry}`;
+  const templates = ONE_LINER_TEMPLATES[relationshipStructure];
+  const seed = `${relationshipStructure}-${elementA}-${elementB}-${geometry}`;
   const index = simpleHash(seed) % templates.length;
   return templates[index]!;
 }
 
 /**
- * 生成配对结果
+ * 生成 core_tension
  */
-export function calculateCompatibility(
+function generateCoreTension(
+  relationshipStructure: RelationshipStructure,
+  elementA: string,
+  elementB: string
+): string {
+  const templates = CORE_TENSION_TEMPLATES[relationshipStructure];
+  const seed = `${relationshipStructure}-${elementA}-${elementB}`;
+  const index = simpleHash(seed) % templates.length;
+  return templates[index]!;
+}
+
+/**
+ * 生成冲突循环
+ */
+function generateConflictLoops(
+  seedBase: string,
+  count: number = 2
+): ConflictLoop[] {
+  const selectedLoops = selectFromList(`${seedBase}-loops`, CONFLICT_LOOP_TEMPLATES, count);
+
+  return selectedLoops.map((loop, i) => {
+    const seed = `${seedBase}-loop-${i}`;
+    const trigger = selectFromList(`${seed}-trigger`, loop.triggers, 1)[0] ?? '';
+    const pattern = selectFromList(`${seed}-pattern`, loop.patterns, 1)[0] ?? '';
+    const breakRule = selectFromList(`${seed}-break`, loop.break_rules, 1)[0] ?? '';
+
+    return {
+      name: loop.name,
+      trigger,
+      pattern,
+      break_rule: breakRule,
+    };
+  });
+}
+
+/**
+ * 生成关系说明书
+ */
+export function generateRelationshipManual(
   signACode: string,
   signBCode: string
-): MatchResult | null {
+): RelationshipManual | null {
   const signA = getSignByCode(signACode);
   const signB = getSignByCode(signBCode);
 
@@ -404,9 +476,9 @@ export function calculateCompatibility(
   // 计算总分
   const score = calculateTotalScore(elementScore, modalityScore, geometryScore);
 
-  // 计算等级和关系类型
-  const level = calculateLevel(score);
-  const relationshipType = calculateRelationshipType(
+  // 计算等级和关系结构
+  const complexityLevel = calculateComplexityLevel(score);
+  const relationshipStructure = calculateRelationshipStructure(
     score,
     geometry,
     elementScore,
@@ -415,44 +487,32 @@ export function calculateCompatibility(
 
   // 生成文案（确定性地从模板库选择）
   const seedBase = `${signACode}-${signBCode}`;
-  const oneLiner = generateOneLiner(relationshipType, signA.element, signB.element, geometry);
-  const attraction = selectFromList(`${seedBase}-attraction`, ATTRACTION_TEMPLATES, 2);
+  const oneLiner = generateOneLiner(relationshipStructure, signA.element, signB.element, geometry);
+  const coreTension = generateCoreTension(relationshipStructure, signA.element, signB.element);
   const advantages = selectFromList(`${seedBase}-advantages`, ADVANTAGES_TEMPLATES, 3);
   const risks = selectFromList(`${seedBase}-risks`, RISKS_TEMPLATES, 3);
   const doRules = selectFromList(`${seedBase}-do`, DO_TEMPLATES, 3);
   const dontRules = selectFromList(`${seedBase}-dont`, DONT_TEMPLATES, 3);
-
-  // 生成触发点
-  const triggers: MatchResult['triggers'] = [];
-  const topics: TriggerTopic[] = ['money', 'boundaries', 'communication', 'jealousy', 'time'];
-  const selectedTopics = selectFromList(`${seedBase}-triggers`, topics, 2);
-  selectedTopics.forEach((topic, i) => {
-    const options = TRIGGER_TEMPLATES[topic];
-    const selected = selectFromList(`${seedBase}-trigger-${i}`, options, 1);
-    if (selected[0]) {
-      triggers.push({ topic, ...selected[0] });
-    }
-  });
+  const conflictLoops = generateConflictLoops(seedBase, 2);
 
   // 解释文案
-  const explain = {
-    element: getExplanationText('element', signA.element, signB.element, elementScore),
-    modality: getExplanationText('modality', signA.modality, signB.modality, modalityScore),
-    geometry: getExplanationText('geometry', geometry, '', geometryScore),
+  const structureExplain: StructureExplain = {
+    element_relation: getExplanationText('element', signA.element, signB.element, elementScore),
+    modality_relation: getExplanationText('modality', signA.modality, signB.modality, modalityScore),
+    geometry_relation: getExplanationText('geometry', geometry, '', geometryScore),
   };
 
   return {
     pair: { a: signACode, b: signBCode },
-    score,
-    level,
+    complexity_level: complexityLevel,
     one_liner: oneLiner,
-    relationship_type: relationshipType,
-    attraction,
+    relationship_structure: relationshipStructure,
+    core_tension: coreTension,
     advantages,
     risks,
-    triggers,
-    rules: { do: doRules, dont: dontRules },
-    explain,
+    conflict_loops: conflictLoops,
+    interaction_rules: { do: doRules, dont: dontRules },
+    structure_explain: structureExplain,
   };
 }
 

@@ -8,7 +8,7 @@ import { strictEqual, deepStrictEqual, ok, match } from 'node:assert';
 import {
   generateForecast,
 } from '../lib/forecast.js';
-import type { Tone, Focus, Level, RelationshipType } from '../lib/compatibility.js';
+import type { Tone, Focus, ComplexityLevel, RelationshipStructure } from '../lib/compatibility.js';
 
 describe('generateForecast', () => {
   describe('SPEC 8.1 单元测试要求', () => {
@@ -63,7 +63,7 @@ describe('generateForecast', () => {
         ok(['communication', 'boundaries', 'money', 'intimacy', 'plans', 'social', 'repair'].includes(day.focus));
         ok(typeof day.action === 'string');
         strictEqual(day.action.length > 0, true);
-        ok(typeof day.warning_or_window === 'string');
+        ok(typeof day.window_or_risk === 'string');
       });
     });
   });
@@ -202,15 +202,15 @@ describe('generateForecast', () => {
       });
     });
 
-    it('每一天必须输出 warning_or_window（可选，短句）', () => {
+    it('每一天必须输出 window_or_risk（可选，短句）', () => {
       const result = generateForecast('Aries', 'Libra', '2026-01-14', 'HIGH', 'LongTerm', 7);
 
       result.days.forEach(day => {
-        ok(typeof day.warning_or_window === 'string');
-        // warning_or_window 可以为空，或者应该是短句
+        ok(typeof day.window_or_risk === 'string');
+        // window_or_risk 可以为空，或者应该是短句
         // 验证如果是中文则格式正确
-        if (day.warning_or_window.length > 0) {
-          ok(/[\u4e00-\u9fa5]/.test(day.warning_or_window));
+        if (day.window_or_risk.length > 0) {
+          ok(/[\u4e00-\u9fa5]/.test(day.window_or_risk));
         }
       });
     });

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generateForecast } from '@/lib/forecast'
+import { generateRelationshipManual } from '@/lib/compatibility'
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
@@ -12,23 +13,20 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Missing parameters' }, { status: 400 })
   }
 
-  // 首先需要从 match API 获取配对结果来获取 level 和 relationship_type
-  // 但为了避免循环依赖，我们重新计算或传递参数
-  // 这里简化处理，直接使用 forecast 函数需要 level 和 relationship_type
-  // 由于 forecast 需要 level 和 relationship_type，我们需要先获取这些值
-
-  // 临时方案：从 URL 参数获取 level 和 relationship_type
-  const level = searchParams.get('level') as any
-  const relationshipType = searchParams.get('relationship_type') as any
-
-  if (!level || !relationshipType) {
-    return NextResponse.json(
-      { error: 'Missing level or relationship_type' },
-      { status: 400 }
-    )
+  // 先获取关系说明书以获取 complexity_level 和 relationship_structure
+  const manual = generateRelationshipManual(a, b)
+  if (!manual) {
+    return NextResponse.json({ error: 'Invalid signs' }, { status: 400 })
   }
 
-  const result = generateForecast(a, b, start, level, relationshipType, days)
+  const result = generateForecast(
+    a,
+    b,
+    start,
+    manual.complexity_level,
+    manual.relationship_structure,
+    days
+  )
 
   return NextResponse.json(result)
 }

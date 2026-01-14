@@ -4,29 +4,35 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 
-interface MatchResult {
+interface ConflictLoop {
+  name: string
+  trigger: string
+  pattern: string
+  break_rule: string
+}
+
+interface InteractionRules {
+  do: string[]
+  dont: string[]
+}
+
+interface StructureExplain {
+  element_relation: string
+  modality_relation: string
+  geometry_relation: string
+}
+
+interface RelationshipManual {
   pair: { a: string; b: string }
-  score: number
-  level: string
+  complexity_level: string
   one_liner: string
-  relationship_type: string
-  attraction: string[]
+  relationship_structure: string
+  core_tension: string
   advantages: string[]
   risks: string[]
-  triggers: Array<{
-    topic: string
-    pattern: string
-    repair: string
-  }>
-  rules: {
-    do: string[]
-    dont: string[]
-  }
-  explain: {
-    element: string
-    modality: string
-    geometry: string
-  }
+  conflict_loops: ConflictLoop[]
+  interaction_rules: InteractionRules
+  structure_explain: StructureExplain
 }
 
 const SIGN_NAMES: Record<string, string> = {
@@ -36,23 +42,29 @@ const SIGN_NAMES: Record<string, string> = {
   'Capricorn': '摩羯座', 'Aquarius': '水瓶座', 'Pisces': '双鱼座'
 }
 
-const LEVEL_COLORS: Record<string, string> = {
-  'HIGH': '#4caf50',
-  'MID': '#ff9800',
-  'LOW': '#f44336'
+const COMPLEXITY_LABELS: Record<string, string> = {
+  'LOW': '相处简单',
+  'MID': '需要平衡',
+  'HIGH': '需要用心经营'
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  'LongTerm': '长期稳定',
-  'HighChemistryHighFriction': '激情与摩擦并存',
-  'ComfortableButStale': '舒适但缺乏激情',
-  'NeedsWork': '需要努力经营'
+const COMPLEXITY_COLORS: Record<string, string> = {
+  'LOW': '#4caf50',
+  'MID': '#ff9800',
+  'HIGH': '#f44336'
+}
+
+const STRUCTURE_LABELS: Record<string, string> = {
+  'LongTermStable': '长期稳定型',
+  'HighChemistryHighFriction': '激情与摩擦并存型',
+  'ComfortableButStale': '舒适但缺乏激情型',
+  'NeedsActiveAdjustment': '需要主动调整型'
 }
 
 export default function MatchPage() {
   const router = useRouter()
   const params = useParams()
-  const [data, setData] = useState<MatchResult | null>(null)
+  const [data, setData] = useState<RelationshipManual | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -95,24 +107,29 @@ export default function MatchPage() {
         <p className="one-liner">{data.one_liner}</p>
       </section>
 
-      {/* 2. level + score */}
+      {/* 2. complexity_level */}
       <section className="section">
-        <div className="score-display">
-          <span className="level" style={{ background: LEVEL_COLORS[data.level] }}>
-            {data.level === 'HIGH' ? '高匹配' : data.level === 'MID' ? '中等匹配' : '低匹配'}
+        <div className="level-display">
+          <span className="level" style={{ background: COMPLEXITY_COLORS[data.complexity_level] }}>
+            {COMPLEXITY_LABELS[data.complexity_level] || data.complexity_level}
           </span>
-          <span className="score">{data.score}分</span>
         </div>
       </section>
 
-      {/* 3. relationship_type 标签 */}
+      {/* 3. relationship_structure */}
       <section className="section">
-        <span className="relationship-type">
-          {TYPE_LABELS[data.relationship_type] || data.relationship_type}
+        <span className="relationship-structure">
+          {STRUCTURE_LABELS[data.relationship_structure] || data.relationship_structure}
         </span>
       </section>
 
-      {/* 4. advantages */}
+      {/* 4. core_tension */}
+      <section className="section">
+        <h3>核心张力</h3>
+        <p className="core-tension">{data.core_tension}</p>
+      </section>
+
+      {/* 5. advantages */}
       <section className="section">
         <h3>优势</h3>
         <ul className="list">
@@ -122,7 +139,7 @@ export default function MatchPage() {
         </ul>
       </section>
 
-      {/* 5. risks */}
+      {/* 6. risks */}
       <section className="section">
         <h3>风险</h3>
         <ul className="list">
@@ -132,14 +149,27 @@ export default function MatchPage() {
         </ul>
       </section>
 
-      {/* 6. rules：do×3 / dont×3 */}
+      {/* 7. conflict_loops */}
+      <section className="section">
+        <h3>冲突循环</h3>
+        {data.conflict_loops.map((loop, i) => (
+          <div key={i} className="conflict-loop">
+            <h4>{loop.name}</h4>
+            <p><strong>触发点：</strong>{loop.trigger}</p>
+            <p><strong>循环模式：</strong>{loop.pattern}</p>
+            <p><strong>打破规则：</strong>{loop.break_rule}</p>
+          </div>
+        ))}
+      </section>
+
+      {/* 8. interaction_rules */}
       <section className="section">
         <h3>相处建议</h3>
         <div className="rules">
           <div className="rule-group do">
             <h4>要做</h4>
             <ul className="list">
-              {data.rules.do.map((item, i) => (
+              {data.interaction_rules.do.map((item, i) => (
                 <li key={i}>{item}</li>
               ))}
             </ul>
@@ -147,7 +177,7 @@ export default function MatchPage() {
           <div className="rule-group dont">
             <h4>不要做</h4>
             <ul className="list">
-              {data.rules.dont.map((item, i) => (
+              {data.interaction_rules.dont.map((item, i) => (
                 <li key={i}>{item}</li>
               ))}
             </ul>
@@ -155,9 +185,9 @@ export default function MatchPage() {
         </div>
       </section>
 
-      {/* 7. 入口：进入 7 日关系日历 */}
+      {/* 9. 进入 7 日关系日历 */}
       <section className="section">
-        <Link href={`/forecast/${data.pair.a}/${data.pair.b}?level=${data.level}&type=${data.relationship_type}`} className="cta-button">
+        <Link href={`/forecast/${data.pair.a}/${data.pair.b}`} className="cta-button">
           查看 7 日关系日历
         </Link>
       </section>
@@ -183,11 +213,9 @@ export default function MatchPage() {
           margin-bottom: 24px;
         }
 
-        .score-display {
+        .level-display {
           display: flex;
           justify-content: center;
-          align-items: center;
-          gap: 16px;
           padding: 20px;
           background: #fff;
           border-radius: 8px;
@@ -195,19 +223,14 @@ export default function MatchPage() {
         }
 
         .level {
-          padding: 8px 16px;
+          padding: 10px 20px;
           color: white;
           border-radius: 20px;
-          font-size: 14px;
+          font-size: 16px;
           font-weight: 500;
         }
 
-        .score {
-          font-size: 32px;
-          font-weight: 600;
-        }
-
-        .relationship-type {
+        .relationship-structure {
           display: block;
           text-align: center;
           padding: 12px;
@@ -220,6 +243,20 @@ export default function MatchPage() {
         h3 {
           font-size: 18px;
           margin-bottom: 12px;
+        }
+
+        h4 {
+          font-size: 16px;
+          margin-bottom: 8px;
+          margin-top: 12px;
+        }
+
+        .core-tension {
+          padding: 16px;
+          background: #fff;
+          border-radius: 8px;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+          line-height: 1.6;
         }
 
         .list {
@@ -240,6 +277,23 @@ export default function MatchPage() {
           border-bottom: none;
         }
 
+        .conflict-loop {
+          padding: 16px;
+          background: #fff;
+          border-radius: 8px;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+          margin-bottom: 12px;
+        }
+
+        .conflict-loop p {
+          margin: 8px 0;
+          line-height: 1.6;
+        }
+
+        .conflict-loop strong {
+          font-weight: 500;
+        }
+
         .rules {
           display: flex;
           flex-direction: column;
@@ -249,6 +303,7 @@ export default function MatchPage() {
         .rule-group h4 {
           font-size: 16px;
           margin-bottom: 8px;
+          margin-top: 0;
         }
 
         .rule-group.do h4 {
