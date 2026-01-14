@@ -1,0 +1,27 @@
+{
+  "name": "sakura-story",
+  "version": "1.0.0",
+  "description": "星座情侣配对 + 7日关系日历",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "tsx --test tests/**/*.test.ts",
+    "test:signs": "tsx --test tests/signs.test.ts",
+    "test:compatibility": "tsx --test tests/compatibility.test.ts",
+    "test:forecast": "tsx --test tests/forecast.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^19.2.8",
+    "@types/react-dom": "^19.2.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "next": "^16.1.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+  }
+}
