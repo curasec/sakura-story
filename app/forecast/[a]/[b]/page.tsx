@@ -24,31 +24,31 @@ interface ForecastResult {
 const getToneConfig = (tone: string, t: any) => {
   const map: Record<string, any> = {
     'Smooth': {
-      label: t.forecast.tone.Smooth,
+      label: t.tone.Smooth,
       color: 'text-sage-600',
       bg: 'bg-sage-100',
       icon: '😊'
     },
     'Tense': {
-      label: t.forecast.tone.Tense,
+      label: t.tone.Tense,
       color: 'text-gold-600',
       bg: 'bg-gold-100',
       icon: '😰'
     },
     'Misunderstanding': {
-      label: t.forecast.tone.Misunderstanding,
+      label: t.tone.Misunderstanding,
       color: 'text-sky-600',
       bg: 'bg-sky-100',
       icon: '💭'
     },
     'Repair': {
-      label: t.forecast.tone.Repair,
+      label: t.tone.Repair,
       color: 'text-purple-600',
       bg: 'bg-purple-100',
       icon: '🤝'
     },
     'Passion': {
-      label: t.forecast.tone.Passion,
+      label: t.tone.Passion,
       color: 'text-red-600',
       bg: 'bg-red-100',
       icon: '❤️'
@@ -61,31 +61,31 @@ const getToneConfig = (tone: string, t: any) => {
 const getFocusConfig = (focus: string, t: any) => {
   const map: Record<string, any> = {
     'communication': {
-      label: t.forecast.focusTypes.communication,
+      label: t.focusTypes.communication,
       icon: '💬'
     },
     'boundaries': {
-      label: t.forecast.focusTypes.boundaries,
+      label: t.focusTypes.boundaries,
       icon: '🚧'
     },
     'money': {
-      label: t.forecast.focusTypes.money,
+      label: t.focusTypes.money,
       icon: '💰'
     },
     'intimacy': {
-      label: t.forecast.focusTypes.intimacy,
+      label: t.focusTypes.intimacy,
       icon: '💕'
     },
     'plans': {
-      label: t.forecast.focusTypes.plans,
+      label: t.focusTypes.plans,
       icon: '📋'
     },
     'social': {
-      label: t.forecast.focusTypes.social,
+      label: t.focusTypes.social,
       icon: '👥'
     },
     'repair': {
-      label: t.forecast.focusTypes.repair,
+      label: t.focusTypes.repair,
       icon: '🔧'
     },
   }
@@ -99,10 +99,10 @@ const getDayLabel = (dateString: string, index: number, t: any, locale: string) 
   const diffTime = date.getTime() - today.getTime()
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
-  if (diffDays === 0) return t.forecast.today
-  if (diffDays === 1) return t.forecast.tomorrow
-  if (diffDays === 2) return t.forecast.dayAfterTomorrow
-  return t.forecast.dayN.replace('{n}', String(index + 1))
+  if (diffDays === 0) return t.today
+  if (diffDays === 1) return t.tomorrow
+  if (diffDays === 2) return t.dayAfterTomorrow
+  return t.dayN.replace('{n}', String(index + 1))
 }
 
 export default function ForecastPage() {
