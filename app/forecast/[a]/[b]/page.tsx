@@ -23,20 +23,12 @@ const SIGN_NAMES: Record<string, string> = {
   'Capricorn': '摩羯座', 'Aquarius': '水瓶座', 'Pisces': '双鱼座'
 }
 
-const TONE_LABELS: Record<string, string> = {
-  'Smooth': '顺畅',
-  'Tense': '紧张',
-  'Misunderstanding': '误会',
-  'Repair': '修复',
-  'Passion': '激情'
-}
-
-const TONE_COLORS: Record<string, string> = {
-  'Smooth': '#4caf50',
-  'Tense': '#ff9800',
-  'Misunderstanding': '#2196f3',
-  'Repair': '#9c27b0',
-  'Passion': '#e91e63'
+const TONE_CONFIG: Record<string, { label: string; color: string; bg: string; icon: string }> = {
+  'Smooth': { label: '顺畅', color: 'text-sage-600', bg: 'bg-sage-100', icon: '😊' },
+  'Tense': { label: '紧张', color: 'text-gold-600', bg: 'bg-gold-100', icon: '😰' },
+  'Misunderstanding': { label: '误会', color: 'text-sky-600', bg: 'bg-sky-100', icon: '💭' },
+  'Repair': { label: '修复', color: 'text-purple-600', bg: 'bg-purple-100', icon: '🤝' },
+  'Passion': { label: '激情', color: 'text-red-600', bg: 'bg-red-100', icon: '❤️' },
 }
 
 const FOCUS_LABELS: Record<string, string> = {
@@ -47,6 +39,28 @@ const FOCUS_LABELS: Record<string, string> = {
   'plans': '计划',
   'social': '社交',
   'repair': '修复'
+}
+
+const FOCUS_CONFIG: Record<string, { label: string; icon: string }> = {
+  'communication': { label: '沟通', icon: '💬' },
+  'boundaries': { label: '边界', icon: '🚧' },
+  'money': { label: '金钱', icon: '💰' },
+  'intimacy': { label: '亲密', icon: '💕' },
+  'plans': { label: '计划', icon: '📋' },
+  'social': { label: '社交', icon: '👥' },
+  'repair': { label: '修复', icon: '🔧' },
+}
+
+const getDayLabel = (dateString: string, index: number) => {
+  const date = new Date(dateString)
+  const today = new Date()
+  const diffTime = date.getTime() - today.getTime()
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+  if (diffDays === 0) return '今天'
+  if (diffDays === 1) return '明天'
+  if (diffDays === 2) return '后天'
+  return `第 ${index + 1} 天`
 }
 
 export default function ForecastPage() {
@@ -74,16 +88,27 @@ export default function ForecastPage() {
 
   if (loading) {
     return (
-      <div className="container">
-        <div className="loading">加载中...</div>
+      <div className="min-h-screen bg-sakura-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-primary-200 border-t-primary-500 rounded-full animate-spin" />
+          <p className="text-gray-600">加载中...</p>
+        </div>
       </div>
     )
   }
 
   if (!data) {
     return (
-      <div className="container">
-        <div className="error">未找到结果</div>
+      <div className="min-h-screen bg-sakura-50 flex items-center justify-center">
+        <div className="bg-white rounded-2xl p-8 shadow-soft">
+          <p className="text-red-500">未找到结果</p>
+          <button
+            onClick={() => router.push('/')}
+            className="mt-4 w-full bg-primary-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-primary-600 transition-colors cursor-pointer"
+          >
+            返回首页
+          </button>
+        </div>
       </div>
     )
   }
@@ -92,120 +117,117 @@ export default function ForecastPage() {
   const signB = SIGN_NAMES[data.pair.b] || data.pair.b
 
   return (
-    <div className="container">
-      <h2>
-        {signA} & {signB}
-      </h2>
-      <p className="subtitle">7 日关系日历</p>
-
-      <div className="days-list">
-        {data.days.map((day, i) => (
-          <div key={i} className="day-card">
-            <div className="day-header">
-              <span className="day-date">{day.date}</span>
-              <span
-                className="day-tone"
-                style={{ background: TONE_COLORS[day.tone] }}
-              >
-                {TONE_LABELS[day.tone] || day.tone}
-              </span>
-            </div>
-            <div className="day-focus">
-              <span className="focus-label">焦点：</span>
-              <span>{FOCUS_LABELS[day.focus] || day.focus}</span>
-            </div>
-            <div className="day-action">{day.action}</div>
-            {day.window_or_risk && (
-              <div className="day-warning">{day.window_or_risk}</div>
-            )}
+    <div className="min-h-screen bg-sakura-50 pb-20">
+      {/* 导航栏 */}
+      <nav className="fixed top-4 left-4 right-4 z-50 bg-white/90 backdrop-blur-md rounded-2xl shadow-soft border border-primary-100">
+        <div className="container-custom py-4 flex items-center justify-between">
+          <button
+            onClick={() => router.push(`/match/${data.pair.a}/${data.pair.b}`)}
+            className="flex items-center gap-2 text-gray-600 hover:text-primary-600 transition-colors cursor-pointer touch-target"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            <span className="font-medium">返回</span>
+          </button>
+          <div className="flex items-center gap-2 cursor-pointer">
+            <svg className="w-8 h-8 text-primary-500" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C12 2 8 5 8 8C8 9.5 8.5 10.5 9.5 11.5C9 12.5 9 13.5 9.5 14.5C8.5 15 8 16 8 17.5C8 21 12 22 12 22C12 22 16 21 16 17.5C16 16 15.5 15 14.5 14.5C15 13.5 15 12.5 14.5 11.5C15.5 10.5 16 9.5 16 8C16 5 12 2 12 2Z" />
+            </svg>
+            <span className="font-display font-bold text-xl text-primary-700">Sakura Story</span>
           </div>
-        ))}
-      </div>
+          <div className="w-20" />
+        </div>
+      </nav>
 
-      <style jsx>{`
-        h2 {
-          font-size: 20px;
-          text-align: center;
-          margin-bottom: 8px;
-        }
+      {/* 内容区域 */}
+      <section className="pt-32 pb-20 px-4">
+        <div className="container-custom max-w-3xl mx-auto">
+          {/* 标题区域 */}
+          <div className="text-center mb-8">
+            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-gray-900">
+              {signA} <span className="text-primary-500">×</span> {signB}
+            </h1>
+            <p className="font-script text-2xl text-primary-600">7 日关系日历</p>
+          </div>
 
-        .subtitle {
-          text-align: center;
-          color: #666;
-          margin-bottom: 24px;
-        }
+          {/* 日期卡片网格 */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            {data.days.map((day, i) => {
+              const toneConfig = TONE_CONFIG[day.tone] || TONE_CONFIG['Smooth']
+              const focusConfig = FOCUS_CONFIG[day.focus] || { label: day.focus, icon: '📌' }
+              const dayLabel = getDayLabel(day.date, i)
 
-        .days-list {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
+              return (
+                <div
+                  key={i}
+                  className="bg-white rounded-2xl p-5 shadow-soft border border-primary-100 hover:shadow-soft-lg transition-shadow duration-300 group"
+                >
+                  {/* 日期和状态 */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <div className="text-sm font-medium text-gray-500 mb-1">{dayLabel}</div>
+                      <div className="text-xs text-gray-400">{day.date}</div>
+                    </div>
+                    <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${toneConfig.bg}`}>
+                      <span>{toneConfig.icon}</span>
+                      <span className={`text-sm font-medium ${toneConfig.color}`}>
+                        {toneConfig.label}
+                      </span>
+                    </div>
+                  </div>
 
-        .day-card {
-          background: #fff;
-          border-radius: 12px;
-          padding: 16px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
+                  {/* 焦点 */}
+                  <div className="flex items-center gap-2 mb-3 bg-gray-50 rounded-xl px-3 py-2">
+                    <span className="text-lg">{focusConfig.icon}</span>
+                    <div className="flex-1">
+                      <div className="text-xs text-gray-500">焦点</div>
+                      <div className="text-sm font-medium text-gray-800">{focusConfig.label}</div>
+                    </div>
+                  </div>
 
-        .day-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 12px;
-        }
+                  {/* 行动建议 */}
+                  <div className="text-gray-700 text-sm leading-relaxed mb-3 p-3 bg-primary-50 rounded-xl border border-primary-100">
+                    {day.action}
+                  </div>
 
-        .day-date {
-          font-size: 16px;
-          font-weight: 500;
-        }
+                  {/* 风险提示 */}
+                  {day.window_or_risk && (
+                    <div className="flex items-start gap-2 p-3 bg-gold-50 rounded-xl border-l-4 border-gold-400">
+                      <svg className="w-5 h-5 text-gold-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      <div className="text-sm text-gold-800">{day.window_or_risk}</div>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
 
-        .day-tone {
-          padding: 4px 12px;
-          color: white;
-          border-radius: 12px;
-          font-size: 14px;
-          font-weight: 500;
-        }
-
-        .day-focus {
-          font-size: 14px;
-          color: #666;
-          margin-bottom: 8px;
-        }
-
-        .focus-label {
-          font-weight: 500;
-        }
-
-        .day-action {
-          font-size: 16px;
-          line-height: 1.6;
-          padding: 12px;
-          background: #f5f5f5;
-          border-radius: 8px;
-          margin-bottom: 8px;
-        }
-
-        .day-warning {
-          font-size: 14px;
-          color: #666;
-          padding: 8px 12px;
-          background: #fff3e0;
-          border-radius: 8px;
-          border-left: 3px solid #ff9800;
-        }
-
-        .loading, .error {
-          text-align: center;
-          padding: 40px;
-          font-size: 16px;
-        }
-
-        .error {
-          color: #f44336;
-        }
-      `}</style>
+          {/* CTA 按钮 */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={() => router.push(`/match/${data.pair.a}/${data.pair.b}`)}
+              className="flex items-center justify-center gap-3 bg-white text-gray-700 px-8 py-4 rounded-xl font-semibold hover:bg-gray-50 transition-colors cursor-pointer touch-target shadow-soft border border-gray-200"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span>返回配对分析</span>
+            </button>
+            <button
+              onClick={() => router.push('/')}
+              className="flex items-center justify-center gap-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white px-8 py-4 rounded-xl font-semibold hover:from-primary-600 hover:to-primary-700 transition-all cursor-pointer touch-target shadow-soft hover:shadow-soft-lg"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 001 1h3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-3a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-3" />
+              </svg>
+              <span>重新配对</span>
+            </button>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }

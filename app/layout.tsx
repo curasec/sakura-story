@@ -1,8 +1,9 @@
 import './globals.css'
+import type { Metadata } from 'next'
 
-export const metadata = {
-  title: '星座关系说明书',
-  description: '星座关系说明书 + 7日关系日历',
+export const metadata: Metadata = {
+  title: 'Sakura Story - 星座情侣配对',
+  description: '星座情侣配对 + 7日关系日历',
 }
 
 export default function RootLayout({
@@ -11,8 +12,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="zh-CN">
-      <body>{children}</body>
+    <html lang="zh-CN" className="scroll-smooth">
+      <body className="bg-background text-text font-sans antialiased">
+        {children}
+      </body>
     </html>
   )
 }

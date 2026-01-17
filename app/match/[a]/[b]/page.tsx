@@ -48,10 +48,10 @@ const COMPLEXITY_LABELS: Record<string, string> = {
   'HIGH': '需要用心经营'
 }
 
-const COMPLEXITY_COLORS: Record<string, string> = {
-  'LOW': '#4caf50',
-  'MID': '#ff9800',
-  'HIGH': '#f44336'
+const COMPLEXITY_CONFIG: Record<string, { label: string; color: string; bg: string; icon: string }> = {
+  'LOW': { label: '相处简单', color: 'text-sage-600', bg: 'bg-sage-100', icon: '😊' },
+  'MID': { label: '需要平衡', color: 'text-gold-600', bg: 'bg-gold-100', icon: '⚖️' },
+  'HIGH': { label: '需要用心经营', color: 'text-red-600', bg: 'bg-red-100', icon: '💪' },
 }
 
 const STRUCTURE_LABELS: Record<string, string> = {
@@ -59,6 +59,13 @@ const STRUCTURE_LABELS: Record<string, string> = {
   'HighChemistryHighFriction': '激情与摩擦并存型',
   'ComfortableButStale': '舒适但缺乏激情型',
   'NeedsActiveAdjustment': '需要主动调整型'
+}
+
+const STRUCTURE_CONFIG: Record<string, { label: string; icon: string; color: string }> = {
+  'LongTermStable': { label: '长期稳定型', icon: '🏠', color: 'bg-sage-100 text-sage-700' },
+  'HighChemistryHighFriction': { label: '激情与摩擦并存型', icon: '🔥', color: 'bg-red-100 text-red-700' },
+  'ComfortableButStale': { label: '舒适但缺乏激情型', icon: '☕', color: 'bg-gray-100 text-gray-700' },
+  'NeedsActiveAdjustment': { label: '需要主动调整型', icon: '🔄', color: 'bg-gold-100 text-gold-700' },
 }
 
 export default function MatchPage() {
@@ -82,260 +89,232 @@ export default function MatchPage() {
 
   if (loading) {
     return (
-      <div className="container">
-        <div className="loading">加载中...</div>
+      <div className="min-h-screen bg-sakura-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-primary-200 border-t-primary-500 rounded-full animate-spin" />
+          <p className="text-gray-600">加载中...</p>
+        </div>
       </div>
     )
   }
 
   if (!data) {
     return (
-      <div className="container">
-        <div className="error">未找到结果</div>
+      <div className="min-h-screen bg-sakura-50 flex items-center justify-center">
+        <div className="bg-white rounded-2xl p-8 shadow-soft">
+          <p className="text-red-500">未找到结果</p>
+          <button
+            onClick={() => router.push('/')}
+            className="mt-4 w-full bg-primary-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-primary-600 transition-colors cursor-pointer"
+          >
+            返回首页
+          </button>
+        </div>
       </div>
     )
   }
 
   const signA = SIGN_NAMES[data.pair.a] || data.pair.a
   const signB = SIGN_NAMES[data.pair.b] || data.pair.b
+  const complexityConfig = COMPLEXITY_CONFIG[data.complexity_level] || COMPLEXITY_CONFIG['MID']
+  const structureConfig = STRUCTURE_CONFIG[data.relationship_structure] || { label: data.relationship_structure, icon: '💫', color: 'bg-primary-50 text-primary-700' }
 
   return (
-    <div className="container">
-      {/* 1. one_liner */}
-      <section className="section">
-        <h2>{signA} & {signB}</h2>
-        <p className="one-liner">{data.one_liner}</p>
-      </section>
+    <div className="min-h-screen bg-sakura-50 pb-20">
+      {/* 导航栏 */}
+      <nav className="fixed top-4 left-4 right-4 z-50 bg-white/90 backdrop-blur-md rounded-2xl shadow-soft border border-primary-100">
+        <div className="container-custom py-4 flex items-center justify-between">
+          <button
+            onClick={() => router.push('/')}
+            className="flex items-center gap-2 text-gray-600 hover:text-primary-600 transition-colors cursor-pointer touch-target"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            <span className="font-medium">返回</span>
+          </button>
+          <div className="flex items-center gap-2 cursor-pointer">
+            <svg className="w-8 h-8 text-primary-500" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C12 2 8 5 8 8C8 9.5 8.5 10.5 9.5 11.5C9 12.5 9 13.5 9.5 14.5C8.5 15 8 16 8 17.5C8 21 12 22 12 22C12 22 16 21 16 17.5C16 16 15.5 15 14.5 14.5C15 13.5 15 12.5 14.5 11.5C15.5 10.5 16 9.5 16 8C16 5 12 2 12 2Z" />
+            </svg>
+            <span className="font-display font-bold text-xl text-primary-700">Sakura Story</span>
+          </div>
+          <div className="w-20" />
+        </div>
+      </nav>
 
-      {/* 2. complexity_level */}
-      <section className="section">
-        <div className="level-display">
-          <span className="level" style={{ background: COMPLEXITY_COLORS[data.complexity_level] }}>
-            {COMPLEXITY_LABELS[data.complexity_level] || data.complexity_level}
-          </span>
+      {/* 内容区域 */}
+      <section className="pt-32 pb-20 px-4">
+        <div className="container-custom max-w-3xl mx-auto">
+          {/* 标题区域 */}
+          <div className="text-center mb-8">
+            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-gray-900">
+              {signA} <span className="text-primary-500">×</span> {signB}
+            </h1>
+            <p className="font-script text-2xl text-primary-600">{data.one_liner}</p>
+          </div>
+
+          {/* 复杂度标签 */}
+          <div className="flex justify-center mb-8">
+            <div className={`inline-flex items-center gap-3 px-6 py-3 rounded-full ${complexityConfig.bg}`}>
+              <span className="text-2xl">{complexityConfig.icon}</span>
+              <span className={`font-semibold ${complexityConfig.color}`}>
+                {complexityConfig.label}
+              </span>
+            </div>
+          </div>
+
+          {/* 关系类型卡片 */}
+          <div className={`bg-white rounded-2xl p-6 shadow-soft border border-primary-100 mb-6 ${structureConfig.color}`}>
+            <div className="flex items-center justify-center gap-3">
+              <span className="text-3xl">{structureConfig.icon}</span>
+              <span className="font-display font-bold text-xl">{structureConfig.label}</span>
+            </div>
+          </div>
+
+          {/* 核心张力 */}
+          <div className="bg-white rounded-2xl p-6 shadow-soft border border-primary-100 mb-6">
+            <h3 className="font-display font-semibold text-lg mb-4 text-gray-900">核心张力</h3>
+            <p className="text-gray-700 leading-relaxed">{data.core_tension}</p>
+          </div>
+
+          {/* 优势与风险 */}
+          <div className="grid sm:grid-cols-2 gap-6 mb-6">
+            {/* 优势 */}
+            <div className="bg-white rounded-2xl p-6 shadow-soft border border-primary-100">
+              <div className="flex items-center gap-2 mb-4">
+                <svg className="w-6 h-6 text-sage-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 className="font-display font-semibold text-lg text-gray-900">优势</h3>
+              </div>
+              <ul className="space-y-3">
+                {data.advantages.map((item, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <svg className="w-5 h-5 text-sage-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-gray-700">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* 风险 */}
+            <div className="bg-white rounded-2xl p-6 shadow-soft border border-primary-100">
+              <div className="flex items-center gap-2 mb-4">
+                <svg className="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <h3 className="font-display font-semibold text-lg text-gray-900">风险</h3>
+              </div>
+              <ul className="space-y-3">
+                {data.risks.map((item, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8 8.586 7.707 9.293a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-gray-700">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* 冲突循环 */}
+          {data.conflict_loops.length > 0 && (
+            <div className="bg-white rounded-2xl p-6 shadow-soft border border-primary-100 mb-6">
+              <h3 className="font-display font-semibold text-lg mb-6 text-gray-900">冲突循环</h3>
+              <div className="space-y-6">
+                {data.conflict_loops.map((loop, i) => (
+                  <div key={i} className="bg-gray-50 rounded-xl p-5 border border-gray-200">
+                    <h4 className="font-semibold text-gray-800 mb-3">{loop.name}</h4>
+                    <div className="space-y-2 text-sm">
+                      <p>
+                        <span className="font-medium text-gray-600">触发点：</span>
+                        <span className="text-gray-700">{loop.trigger}</span>
+                      </p>
+                      <p>
+                        <span className="font-medium text-gray-600">循环模式：</span>
+                        <span className="text-gray-700">{loop.pattern}</span>
+                      </p>
+                      <p>
+                        <span className="font-medium text-sage-600">打破规则：</span>
+                        <span className="text-sage-700 font-medium">{loop.break_rule}</span>
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 相处建议 */}
+          <div className="grid sm:grid-cols-2 gap-6 mb-8">
+            {/* 要做 */}
+            <div className="bg-sage-50 rounded-2xl p-6 shadow-soft border border-sage-200">
+              <div className="flex items-center gap-2 mb-4">
+                <svg className="w-6 h-6 text-sage-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 className="font-display font-semibold text-lg text-sage-800">要做</h3>
+              </div>
+              <ul className="space-y-3">
+                {data.interaction_rules.do.map((item, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <svg className="w-5 h-5 text-sage-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-gray-800">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* 不要做 */}
+            <div className="bg-red-50 rounded-2xl p-6 shadow-soft border border-red-200">
+              <div className="flex items-center gap-2 mb-4">
+                <svg className="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 18.364m0 0L12 21m0 0L5.636 5.636m12.728 12.728L5.636 18.364" />
+                </svg>
+                <h3 className="font-display font-semibold text-lg text-red-800">不要做</h3>
+              </div>
+              <ul className="space-y-3">
+                {data.interaction_rules.dont.map((item, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8 8.586 7.707 9.293a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-gray-800">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* CTA 按钮 */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href={`/forecast/${data.pair.a}/${data.pair.b}`}
+              className="flex items-center justify-center gap-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white px-8 py-4 rounded-xl font-semibold hover:from-primary-600 hover:to-primary-700 transition-all cursor-pointer touch-target shadow-soft hover:shadow-soft-lg"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span>查看 7 日关系日历</span>
+            </Link>
+            <button
+              onClick={() => router.push('/')}
+              className="flex items-center justify-center gap-3 bg-white text-gray-700 px-8 py-4 rounded-xl font-semibold hover:bg-gray-50 transition-colors cursor-pointer touch-target shadow-soft border border-gray-200"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span>返回首页</span>
+            </button>
+          </div>
         </div>
       </section>
-
-      {/* 3. relationship_structure */}
-      <section className="section">
-        <span className="relationship-structure">
-          {STRUCTURE_LABELS[data.relationship_structure] || data.relationship_structure}
-        </span>
-      </section>
-
-      {/* 4. core_tension */}
-      <section className="section">
-        <h3>核心张力</h3>
-        <p className="core-tension">{data.core_tension}</p>
-      </section>
-
-      {/* 5. advantages */}
-      <section className="section">
-        <h3>优势</h3>
-        <ul className="list">
-          {data.advantages.map((item, i) => (
-            <li key={i}>{item}</li>
-          ))}
-        </ul>
-      </section>
-
-      {/* 6. risks */}
-      <section className="section">
-        <h3>风险</h3>
-        <ul className="list">
-          {data.risks.map((item, i) => (
-            <li key={i}>{item}</li>
-          ))}
-        </ul>
-      </section>
-
-      {/* 7. conflict_loops */}
-      <section className="section">
-        <h3>冲突循环</h3>
-        {data.conflict_loops.map((loop, i) => (
-          <div key={i} className="conflict-loop">
-            <h4>{loop.name}</h4>
-            <p><strong>触发点：</strong>{loop.trigger}</p>
-            <p><strong>循环模式：</strong>{loop.pattern}</p>
-            <p><strong>打破规则：</strong>{loop.break_rule}</p>
-          </div>
-        ))}
-      </section>
-
-      {/* 8. interaction_rules */}
-      <section className="section">
-        <h3>相处建议</h3>
-        <div className="rules">
-          <div className="rule-group do">
-            <h4>要做</h4>
-            <ul className="list">
-              {data.interaction_rules.do.map((item, i) => (
-                <li key={i}>{item}</li>
-              ))}
-            </ul>
-          </div>
-          <div className="rule-group dont">
-            <h4>不要做</h4>
-            <ul className="list">
-              {data.interaction_rules.dont.map((item, i) => (
-                <li key={i}>{item}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* 9. 进入 7 日关系日历 */}
-      <section className="section">
-        <Link href={`/forecast/${data.pair.a}/${data.pair.b}`} className="cta-button">
-          查看 7 日关系日历
-        </Link>
-      </section>
-
-      <style jsx>{`
-        h2 {
-          font-size: 20px;
-          text-align: center;
-          margin-bottom: 16px;
-        }
-
-        .one-liner {
-          font-size: 18px;
-          text-align: center;
-          line-height: 1.6;
-          padding: 16px;
-          background: #fff;
-          border-radius: 8px;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .section {
-          margin-bottom: 24px;
-        }
-
-        .level-display {
-          display: flex;
-          justify-content: center;
-          padding: 20px;
-          background: #fff;
-          border-radius: 8px;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .level {
-          padding: 10px 20px;
-          color: white;
-          border-radius: 20px;
-          font-size: 16px;
-          font-weight: 500;
-        }
-
-        .relationship-structure {
-          display: block;
-          text-align: center;
-          padding: 12px;
-          background: #e3f2fd;
-          color: #1976d2;
-          border-radius: 8px;
-          font-weight: 500;
-        }
-
-        h3 {
-          font-size: 18px;
-          margin-bottom: 12px;
-        }
-
-        h4 {
-          font-size: 16px;
-          margin-bottom: 8px;
-          margin-top: 12px;
-        }
-
-        .core-tension {
-          padding: 16px;
-          background: #fff;
-          border-radius: 8px;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-          line-height: 1.6;
-        }
-
-        .list {
-          list-style: none;
-          padding: 16px;
-          background: #fff;
-          border-radius: 8px;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .list li {
-          padding: 8px 0;
-          border-bottom: 1px solid #f0f0f0;
-          line-height: 1.6;
-        }
-
-        .list li:last-child {
-          border-bottom: none;
-        }
-
-        .conflict-loop {
-          padding: 16px;
-          background: #fff;
-          border-radius: 8px;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-          margin-bottom: 12px;
-        }
-
-        .conflict-loop p {
-          margin: 8px 0;
-          line-height: 1.6;
-        }
-
-        .conflict-loop strong {
-          font-weight: 500;
-        }
-
-        .rules {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-
-        .rule-group h4 {
-          font-size: 16px;
-          margin-bottom: 8px;
-          margin-top: 0;
-        }
-
-        .rule-group.do h4 {
-          color: #4caf50;
-        }
-
-        .rule-group.dont h4 {
-          color: #f44336;
-        }
-
-        .cta-button {
-          display: block;
-          text-align: center;
-          padding: 16px;
-          background: #e91e63;
-          color: white;
-          text-decoration: none;
-          border-radius: 8px;
-          font-size: 16px;
-          font-weight: 500;
-        }
-
-        .loading, .error {
-          text-align: center;
-          padding: 40px;
-          font-size: 16px;
-        }
-
-        .error {
-          color: #f44336;
-        }
-      `}</style>
     </div>
   )
 }
