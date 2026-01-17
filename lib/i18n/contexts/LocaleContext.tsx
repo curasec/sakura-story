@@ -13,14 +13,14 @@ const LocaleContext = createContext<LocaleContextType | undefined>(undefined)
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(() => {
-    // 从 localStorage 读取，默认英文
+    // 从 localStorage 读取，默认中文
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('locale') as Locale
       if (saved && ['en', 'zh', 'ja'].includes(saved)) {
         return saved
       }
     }
-    return 'en'
+    return 'zh'
   })
 
   const setLocale = (newLocale: Locale) => {
