@@ -43,19 +43,19 @@ interface RelationshipManual {
 const getComplexityConfig = (level: string, t: any) => {
   const map: Record<string, any> = {
     'LOW': {
-      label: t.match.complexity.LOW,
+      label: t.complexity.LOW,
       color: 'text-sage-600',
       bg: 'bg-sage-100',
       icon: '😊'
     },
     'MID': {
-      label: t.match.complexity.MID,
+      label: t.complexity.MID,
       color: 'text-gold-600',
       bg: 'bg-gold-100',
       icon: '⚖️'
     },
     'HIGH': {
-      label: t.match.complexity.HIGH,
+      label: t.complexity.HIGH,
       color: 'text-red-600',
       bg: 'bg-red-100',
       icon: '💪'
@@ -68,22 +68,22 @@ const getComplexityConfig = (level: string, t: any) => {
 const getStructureConfig = (structure: string, t: any) => {
   const map: Record<string, any> = {
     'LongTermStable': {
-      label: t.match.structure.LongTermStable,
+      label: t.structure.LongTermStable,
       icon: '🏠',
       color: 'bg-sage-100 text-sage-700'
     },
     'HighChemistryHighFriction': {
-      label: t.match.structure.HighChemistryHighFriction,
+      label: t.structure.HighChemistryHighFriction,
       icon: '🔥',
       color: 'bg-red-100 text-red-700'
     },
     'ComfortableButStale': {
-      label: t.match.structure.ComfortableButStale,
+      label: t.structure.ComfortableButStale,
       icon: '☕',
       color: 'bg-gray-100 text-gray-700'
     },
     'NeedsActiveAdjustment': {
-      label: t.match.structure.NeedsActiveAdjustment,
+      label: t.structure.NeedsActiveAdjustment,
       icon: '🔄',
       color: 'bg-gold-100 text-gold-700'
     },
