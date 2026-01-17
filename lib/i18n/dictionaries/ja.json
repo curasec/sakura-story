@@ -1,0 +1,99 @@
+{
+  "common": {
+    "brand": "Sakura Story",
+    "loading": "読み込み中...",
+    "notFound": "結果が見つかりません",
+    "back": "戻る",
+    "backToHome": "ホームに戻る",
+    "start": "開始"
+  },
+  "home": {
+    "versionTag": "バージョン2.0公開中",
+    "title": "星座の神秘を探る",
+    "subtitle": "二人の関係コードを解き放つ",
+    "selectPrompt": "二人の星座相性をチェック",
+    "yourSign": "あなたの星座",
+    "partnerSign": "相手の星座",
+    "startMatch": "相性分析を開始",
+    "selectTwoSigns": "2つの星座を選択してください",
+    "privacy": "プライバシーポリシー",
+    "terms": "利用規約",
+    "contact": "お問い合わせ",
+    "copyright": "© 2026 Sakura Story. All rights reserved."
+  },
+  "match": {
+    "pageTitle": "相性分析",
+    "complexity": {
+      "LOW": "付き合いが良い",
+      "MID": "バランスが必要",
+      "HIGH": "努力が必要"
+    },
+    "structure": {
+      "LongTermStable": "長期的安定型",
+      "HighChemistryHighFriction": "情熱と摩擦共存型",
+      "ComfortableButStale": "快適だが情熱不足型",
+      "NeedsActiveAdjustment": "能動的調整が必要型"
+    },
+    "coreTension": "核心緊張",
+    "advantages": "長所",
+    "risks": "リスク",
+    "conflictLoops": "対立サイクル",
+    "trigger": "きっかけ",
+    "pattern": "パターン",
+    "breakRule": "打破ルール",
+    "do": "すべきこと",
+    "dont": "してはいけないこと",
+    "viewCalendar": "7日間カレンダーを見る",
+    "newMatch": "新しい相性"
+  },
+  "forecast": {
+    "title": "7日間関係カレンダー",
+    "subtitle": "関係カレンダー",
+    "day": "日",
+    "today": "今日",
+    "tomorrow": "明日",
+    "dayAfterTomorrow": "明後日",
+    "dayN": "{n}日目",
+    "tone": {
+      "Smooth": "順調",
+      "Tense": "緊張",
+      "Misunderstanding": "誤解",
+      "Repair": "修復",
+      "Passion": "情熱"
+    },
+    "focus": "フォーカス",
+    "focusTypes": {
+      "communication": "コミュニケーション",
+      "boundaries": "境界線",
+      "money": "金銭",
+      "intimacy": "親密さ",
+      "plans": "計画",
+      "social": "社交",
+      "repair": "修復"
+    },
+    "action": "行動アドバイス",
+    "risk": "リスク警告",
+    "backToMatch": "相性分析に戻る",
+    "newMatch": "新しい相性"
+  },
+  "signs": {
+    "Aries": "牡羊座",
+    "Taurus": "牡牛座",
+    "Gemini": "双子座",
+    "Cancer": "蟹座",
+    "Leo": "獅子座",
+    "Virgo": "乙女座",
+    "Libra": "天秤座",
+    "Scorpio": "蠍座",
+    "Sagittarius": "射手座",
+    "Capricorn": "山羊座",
+    "Aquarius": "水瓶座",
+    "Pisces": "魚座",
+    "element": {
+      "Fire": "火の星座",
+      "Earth": "土の星座",
+      "Air": "風の星座",
+      "Water": "水の星座"
+    }
+  }
+}

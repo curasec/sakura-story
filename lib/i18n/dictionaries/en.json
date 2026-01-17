@@ -1,0 +1,99 @@
+{
+  "common": {
+    "brand": "Sakura Story",
+    "loading": "Loading...",
+    "notFound": "Result not found",
+    "back": "Back",
+    "backToHome": "Back to Home",
+    "start": "Start"
+  },
+  "home": {
+    "versionTag": "Version 2.0 Now Available",
+    "title": "Discover the Mysteries of Zodiac",
+    "subtitle": "Unlock Your Relationship Code",
+    "selectPrompt": "Test your zodiac compatibility",
+    "yourSign": "Your Sign",
+    "partnerSign": "Partner's Sign",
+    "startMatch": "Start Compatibility Analysis",
+    "selectTwoSigns": "Please select two signs",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "contact": "Contact Us",
+    "copyright": "© 2026 Sakura Story. All rights reserved."
+  },
+  "match": {
+    "pageTitle": "Compatibility",
+    "complexity": {
+      "LOW": "Easy Going",
+      "MID": "Needs Balance",
+      "HIGH": "Requires Effort"
+    },
+    "structure": {
+      "LongTermStable": "Long-term Stable",
+      "HighChemistryHighFriction": "High Passion & Friction",
+      "ComfortableButStale": "Comfortable but Lacking Passion",
+      "NeedsActiveAdjustment": "Needs Active Adjustment"
+    },
+    "coreTension": "Core Tension",
+    "advantages": "Advantages",
+    "risks": "Risks",
+    "conflictLoops": "Conflict Cycles",
+    "trigger": "Trigger",
+    "pattern": "Pattern",
+    "breakRule": "Breaking Rule",
+    "do": "Do",
+    "dont": "Don't",
+    "viewCalendar": "View 7-Day Calendar",
+    "newMatch": "New Match"
+  },
+  "forecast": {
+    "title": "7-Day Relationship Calendar",
+    "subtitle": "Relationship Calendar",
+    "day": "Day",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "dayAfterTomorrow": "Day After Tomorrow",
+    "dayN": "Day {n}",
+    "tone": {
+      "Smooth": "Smooth",
+      "Tense": "Tense",
+      "Misunderstanding": "Misunderstanding",
+      "Repair": "Repair",
+      "Passion": "Passion"
+    },
+    "focus": "Focus",
+    "focusTypes": {
+      "communication": "Communication",
+      "boundaries": "Boundaries",
+      "money": "Money",
+      "intimacy": "Intimacy",
+      "plans": "Planning",
+      "social": "Social",
+      "repair": "Repair"
+    },
+    "action": "Action",
+    "risk": "Risk",
+    "backToMatch": "Back to Compatibility",
+    "newMatch": "New Match"
+  },
+  "signs": {
+    "Aries": "Aries",
+    "Taurus": "Taurus",
+    "Gemini": "Gemini",
+    "Cancer": "Cancer",
+    "Leo": "Leo",
+    "Virgo": "Virgo",
+    "Libra": "Libra",
+    "Scorpio": "Scorpio",
+    "Sagittarius": "Sagittarius",
+    "Capricorn": "Capricorn",
+    "Aquarius": "Aquarius",
+    "Pisces": "Pisces",
+    "element": {
+      "Fire": "Fire",
+      "Earth": "Earth",
+      "Air": "Air",
+      "Water": "Water"
+    }
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "common": {
+    "brand": "Sakura Story",
+    "loading": "加载中...",
+    "notFound": "未找到结果",
+    "back": "返回",
+    "backToHome": "返回首页",
+    "start": "开始"
+  },
+  "home": {
+    "versionTag": "新版本 2.0 已上线",
+    "title": "探索星座的奥秘",
+    "subtitle": "解锁你们的关系密码",
+    "selectPrompt": "立即测试你们的星座匹配度",
+    "yourSign": "你的星座",
+    "partnerSign": "对方星座",
+    "startMatch": "开始配对分析",
+    "selectTwoSigns": "请选择两个星座",
+    "privacy": "隐私政策",
+    "terms": "用户协议",
+    "contact": "联系我们",
+    "copyright": "© 2026 Sakura Story. All rights reserved."
+  },
+  "match": {
+    "pageTitle": "配对分析",
+    "complexity": {
+      "LOW": "相处简单",
+      "MID": "需要平衡",
+      "HIGH": "需要用心经营"
+    },
+    "structure": {
+      "LongTermStable": "长期稳定型",
+      "HighChemistryHighFriction": "激情与摩擦并存型",
+      "ComfortableButStale": "舒适但缺乏激情型",
+      "NeedsActiveAdjustment": "需要主动调整型"
+    },
+    "coreTension": "核心张力",
+    "advantages": "优势",
+    "risks": "风险",
+    "conflictLoops": "冲突循环",
+    "trigger": "触发点",
+    "pattern": "循环模式",
+    "breakRule": "打破规则",
+    "do": "要做",
+    "dont": "不要做",
+    "viewCalendar": "查看 7 日关系日历",
+    "newMatch": "重新配对"
+  },
+  "forecast": {
+    "title": "7 日关系日历",
+    "subtitle": "关系日历",
+    "day": "天",
+    "today": "今天",
+    "tomorrow": "明天",
+    "dayAfterTomorrow": "后天",
+    "dayN": "第 {n} 天",
+    "tone": {
+      "Smooth": "顺畅",
+      "Tense": "紧张",
+      "Misunderstanding": "误会",
+      "Repair": "修复",
+      "Passion": "激情"
+    },
+    "focus": "焦点",
+    "focusTypes": {
+      "communication": "沟通",
+      "boundaries": "边界",
+      "money": "金钱",
+      "intimacy": "亲密",
+      "plans": "计划",
+      "social": "社交",
+      "repair": "修复"
+    },
+    "action": "行动建议",
+    "risk": "风险提示",
+    "backToMatch": "返回配对分析",
+    "newMatch": "重新配对"
+  },
+  "signs": {
+    "Aries": "白羊座",
+    "Taurus": "金牛座",
+    "Gemini": "双子座",
+    "Cancer": "巨蟹座",
+    "Leo": "狮子座",
+    "Virgo": "处女座",
+    "Libra": "天秤座",
+    "Scorpio": "天蝎座",
+    "Sagittarius": "射手座",
+    "Capricorn": "摩羯座",
+    "Aquarius": "水瓶座",
+    "Pisces": "双鱼座",
+    "element": {
+      "Fire": "火象",
+      "Earth": "土象",
+      "Air": "风象",
+      "Water": "水象"
+    }
+  }
+}

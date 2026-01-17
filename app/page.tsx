@@ -2,37 +2,78 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from '@/lib/i18n'
+import { useLocale } from '@/lib/i18n'
+import { getSignName, getElementName, type SignCode, type Element } from '@/lib/signs'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 
 // 星座数据
-const SIGNS = [
-  { code: 'Aries', name: '白羊座', icon: '♈', element: '火象', date: '3/21-4/19' },
-  { code: 'Taurus', name: '金牛座', icon: '♉', element: '土象', date: '4/20-5/20' },
-  { code: 'Gemini', name: '双子座', icon: '♊', element: '风象', date: '5/21-6/21' },
-  { code: 'Cancer', name: '巨蟹座', icon: '♋', element: '水象', date: '6/22-7/22' },
-  { code: 'Leo', name: '狮子座', icon: '♌', element: '火象', date: '7/23-8/22' },
-  { code: 'Virgo', name: '处女座', icon: '♍', element: '土象', date: '8/23-9/22' },
-  { code: 'Libra', name: '天秤座', icon: '♎', element: '风象', date: '9/23-10/23' },
-  { code: 'Scorpio', name: '天蝎座', icon: '♏', element: '水象', date: '10/24-11/22' },
-  { code: 'Sagittarius', name: '射手座', icon: '♐', element: '火象', date: '11/23-12/21' },
-  { code: 'Capricorn', name: '摩羯座', icon: '♑', element: '土象', date: '12/22-1/19' },
-  { code: 'Aquarius', name: '水瓶座', icon: '♒', element: '风象', date: '1/20-2/18' },
-  { code: 'Pisces', name: '双鱼座', icon: '♓', element: '水象', date: '2/19-3/20' },
+const SIGNS_CONFIG: readonly [
+  { code: 'Aries'; icon: string; element: 'Fire'; date: string },
+  { code: 'Taurus'; icon: string; element: 'Earth'; date: string },
+  { code: 'Gemini'; icon: string; element: 'Air'; date: string },
+  { code: 'Cancer'; icon: string; element: 'Water'; date: string },
+  { code: 'Leo'; icon: string; element: 'Fire'; date: string },
+  { code: 'Virgo'; icon: string; element: 'Earth'; date: string },
+  { code: 'Libra'; icon: string; element: 'Air'; date: string },
+  { code: 'Scorpio'; icon: string; element: 'Water'; date: string },
+  { code: 'Sagittarius'; icon: string; element: 'Fire'; date: string },
+  { code: 'Capricorn'; icon: string; element: 'Earth'; date: string },
+  { code: 'Aquarius'; icon: string; element: 'Air'; date: string },
+  { code: 'Pisces'; icon: string; element: 'Water'; date: string },
+] = [
+  { code: 'Aries', icon: '♈', element: 'Fire', date: '3/21-4/19' },
+  { code: 'Taurus', icon: '♉', element: 'Earth', date: '4/20-5/20' },
+  { code: 'Gemini', icon: '♊', element: 'Air', date: '5/21-6/21' },
+  { code: 'Cancer', icon: '♋', element: 'Water', date: '6/22-7/22' },
+  { code: 'Leo', icon: '♌', element: 'Fire', date: '7/23-8/22' },
+  { code: 'Virgo', icon: '♍', element: 'Earth', date: '8/23-9/22' },
+  { code: 'Libra', icon: '♎', element: 'Air', date: '9/23-10/23' },
+  { code: 'Scorpio', icon: '♏', element: 'Water', date: '10/24-11/22' },
+  { code: 'Sagittarius', icon: '♐', element: 'Fire', date: '11/23-12/21' },
+  { code: 'Capricorn', icon: '♑', element: 'Earth', date: '12/22-1/19' },
+  { code: 'Aquarius', icon: '♒', element: 'Air', date: '1/20-2/18' },
+  { code: 'Pisces', icon: '♓', element: 'Water', date: '2/19-3/20' },
 ]
 
-
-// 星座卡片组件
-const SignCard = ({ sign, isSelected, onClick, index }: {
-  sign: typeof SIGNS[0]
-  isSelected: boolean
-  onClick: () => void
-  index: number
-}) => {
-  const elementColor = {
+// 元素颜色映射
+const getElementColor = (element: Element, elementName: string) => {
+  const colorMap: Record<string, string> = {
     '火象': 'bg-orange-100 text-orange-700 border-orange-200',
     '土象': 'bg-amber-100 text-amber-700 border-amber-200',
     '风象': 'bg-sky-100 text-sky-700 border-sky-200',
     '水象': 'bg-blue-100 text-blue-700 border-blue-200',
-  }[sign.element]
+    'Fire': 'bg-orange-100 text-orange-700 border-orange-200',
+    'Earth': 'bg-amber-100 text-amber-700 border-amber-200',
+    'Air': 'bg-sky-100 text-sky-700 border-sky-200',
+    'Water': 'bg-blue-100 text-blue-700 border-blue-200',
+  }
+  return colorMap[elementName] || 'bg-gray-100 text-gray-700 border-gray-200'
+}
+
+// 星座卡片组件
+const SignCard = ({
+  code,
+  icon,
+  element,
+  date,
+  isSelected,
+  onClick,
+  index,
+}: {
+  code: SignCode
+  icon: string
+  element: Element
+  date: string
+  isSelected: boolean
+  onClick: () => void
+  index: number
+}) => {
+  const { locale } = useLocale()
+  const { signs } = useTranslation()
+  const signName = getSignName(code, locale)
+  const elementName = getElementName(element, locale)
+  const elementColor = getElementColor(element, elementName)
 
   return (
     <button
@@ -52,19 +93,19 @@ const SignCard = ({ sign, isSelected, onClick, index }: {
         text-4xl mb-2 transition-transform duration-300
         ${isSelected ? 'scale-110' : 'group-hover:scale-110'}
       `}>
-        {sign.icon}
+        {icon}
       </div>
       {/* 星座名称 */}
       <div className={`font-display font-semibold mb-1 ${isSelected ? 'text-primary-700' : 'text-gray-800'}`}>
-        {sign.name}
+        {signName}
       </div>
       {/* 星座日期 */}
       <div className="text-xs text-gray-500 mb-2">
-        {sign.date}
+        {date}
       </div>
       {/* 元素标签 */}
       <div className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${elementColor}`}>
-        {sign.element}
+        {elementName}
       </div>
     </button>
   )
@@ -72,6 +113,8 @@ const SignCard = ({ sign, isSelected, onClick, index }: {
 
 export default function LandingPage() {
   const router = useRouter()
+  const { locale } = useLocale()
+  const { common, home, signs } = useTranslation()
   const [selectedSignA, setSelectedSignA] = useState('')
   const [selectedSignB, setSelectedSignB] = useState('')
 
@@ -113,8 +156,9 @@ export default function LandingPage() {
             <svg className="w-8 h-8 text-primary-500" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2C12 2 8 5 8 8C8 9.5 8.5 10.5 9.5 11.5C9 12.5 9 13.5 9.5 14.5C8.5 15 8 16 8 17.5C8 21 12 22 12 22C12 22 16 21 16 17.5C16 16 15.5 15 14.5 14.5C15 13.5 15 12.5 14.5 11.5C15.5 10.5 16 9.5 16 8C16 5 12 2 12 2Z" />
             </svg>
-            <span className="font-display font-bold text-xl text-primary-700">Sakura Story</span>
+            <span className="font-display font-bold text-xl text-primary-700">{common.brand}</span>
           </div>
+          <LanguageSwitcher />
         </div>
       </nav>
 
@@ -128,26 +172,26 @@ export default function LandingPage() {
                 <svg className="w-4 h-4 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                <span className="text-sm font-medium text-primary-700">新版本 2.0 已上线</span>
+                <span className="text-sm font-medium text-primary-700">{home.versionTag}</span>
               </div>
 
               <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-gray-900">
-                探索星座的奥秘
+                {home.title}
                 <span className="text-primary-600 block font-script text-5xl sm:text-6xl lg:text-7xl mt-2">
-                  解锁你们的关系密码
+                  {home.subtitle}
                 </span>
               </h1>
               <p className="text-lg text-gray-600 mb-8 max-w-lg mx-auto lg:mx-0">
-                Sakura Story 让星座分析变得简单有趣。配对分析、每日运势、关系追踪，让爱情更有仪式感。
+                {home.selectPrompt}
               </p>
 
               {/* 星座选择器 - 卡片网格 */}
               <div className="bg-white rounded-3xl p-6 shadow-soft-lg border border-primary-100 mb-8 max-w-xl mx-auto lg:mx-0">
                 <div className="text-center mb-6">
-                  <p className="text-sm font-medium text-gray-500 mb-4">立即测试你们的星座匹配度</p>
+                  <p className="text-sm font-medium text-gray-500 mb-4">{home.selectPrompt}</p>
                   <div className="flex items-center justify-center gap-4">
                     <div className="flex-1">
-                      <div className="text-xs text-gray-400 mb-2">你的星座</div>
+                      <div className="text-xs text-gray-400 mb-2">{home.yourSign}</div>
                       <div className="h-1 bg-gray-200 rounded-full">
                         <div className={`h-1 bg-primary-500 rounded-full transition-all duration-300 ${selectedSignA ? 'w-full' : 'w-0'}`} />
                       </div>
@@ -156,7 +200,7 @@ export default function LandingPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
                     <div className="flex-1">
-                      <div className="text-xs text-gray-400 mb-2">对方星座</div>
+                      <div className="text-xs text-gray-400 mb-2">{home.partnerSign}</div>
                       <div className="h-1 bg-gray-200 rounded-full">
                         <div className={`h-1 bg-primary-500 rounded-full transition-all duration-300 ${selectedSignB ? 'w-full' : 'w-0'}`} />
                       </div>
@@ -166,10 +210,13 @@ export default function LandingPage() {
 
                 {/* 星座卡片网格 */}
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-6">
-                  {SIGNS.map((sign, index) => (
+                  {SIGNS_CONFIG.map((sign, index) => (
                     <SignCard
                       key={sign.code}
-                      sign={sign}
+                      code={sign.code}
+                      icon={sign.icon}
+                      element={sign.element}
+                      date={sign.date}
                       isSelected={selectedSignA === sign.code || selectedSignB === sign.code}
                       onClick={() => handleSignSelect(sign.code)}
                       index={index}
@@ -182,7 +229,7 @@ export default function LandingPage() {
                   disabled={!selectedSignA || !selectedSignB}
                   className="w-full bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-4 rounded-xl font-semibold hover:from-primary-600 hover:to-primary-700 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed transition-all duration-300 cursor-pointer touch-target shadow-soft hover:shadow-soft-lg"
                 >
-                  {selectedSignA && selectedSignB ? '开始配对分析' : '请选择两个星座'}
+                  {selectedSignA && selectedSignB ? home.startMatch : home.selectTwoSigns}
                 </button>
               </div>
 
@@ -200,21 +247,21 @@ export default function LandingPage() {
               <svg className="w-8 h-8 text-primary-500" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2C12 2 8 5 8 8C8 9.5 8.5 10.5 9.5 11.5C9 12.5 9 13.5 9.5 14.5C8.5 15 8 16 8 17.5C8 21 12 22 12 22C12 22 16 21 16 17.5C16 16 15.5 15 14.5 14.5C15 13.5 15 12.5 14.5 11.5C15.5 10.5 16 9.5 16 8C16 5 12 2 12 2Z" />
               </svg>
-              <span className="font-display font-bold text-xl text-primary-700">Sakura Story</span>
+              <span className="font-display font-bold text-xl text-primary-700">{common.brand}</span>
             </div>
             <div className="flex gap-6 text-sm text-gray-500">
               <a href="#" className="hover:text-primary-600 transition-colors duration-200 cursor-pointer touch-target">
-                隐私政策
+                {home.privacy}
               </a>
               <a href="#" className="hover:text-primary-600 transition-colors duration-200 cursor-pointer touch-target">
-                用户协议
+                {home.terms}
               </a>
               <a href="#" className="hover:text-primary-600 transition-colors duration-200 cursor-pointer touch-target">
-                联系我们
+                {home.contact}
               </a>
             </div>
             <div className="text-sm text-gray-400">
-              © 2026 Sakura Story. All rights reserved.
+              {home.copyright}
             </div>
           </div>
         </div>

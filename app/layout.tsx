@@ -1,9 +1,10 @@
 import './globals.css'
 import type { Metadata } from 'next'
+import { LocaleProvider } from '@/lib/i18n'
 
 export const metadata: Metadata = {
-  title: 'Sakura Story - 星座情侣配对',
-  description: '星座情侣配对 + 7日关系日历',
+  title: 'Sakura Story - Zodiac Compatibility',
+  description: 'Zodiac compatibility analysis & 7-day relationship calendar',
 }
 
 export default function RootLayout({
@@ -12,9 +13,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="zh-CN" className="scroll-smooth">
+    <html className="scroll-smooth">
       <body className="bg-background text-text font-sans antialiased">
-        {children}
+        <LocaleProvider>
+          {children}
+        </LocaleProvider>
       </body>
     </html>
   )
